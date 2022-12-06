@@ -5,10 +5,8 @@ Photometry IRaf pythON (`prion`) is a package designed for astronomers to do pho
 ## Installation
 
 ```shell
-pip install pirono
+pip install piron
 ```
-
-
 
 ## License
 
