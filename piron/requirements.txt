@@ -1,0 +1,8 @@
+astroalign==2.4.1
+astropy==5.0.2
+matplotlib==3.5.3
+mpl_point_clicker==0.3.1
+pandas==1.4.3
+photutils==1.5.0
+pyraf==2.2.0
+sep==1.2.1
