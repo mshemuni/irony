@@ -30,7 +30,7 @@ class NothingToDoError(Exception):
     pass
 
 
-class NumberOfElemetError(Exception):
+class NumberOfElementError(Exception):
     pass
 
 

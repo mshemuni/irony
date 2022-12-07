@@ -1,5 +1,6 @@
+numpy~=1.23.1
 astroalign==2.4.1
-astropy==5.0.2
+astropy~=5.1
 matplotlib==3.5.3
 mpl_point_clicker==0.3.1
 pandas==1.4.3

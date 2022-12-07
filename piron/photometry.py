@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import math
 from subprocess import PIPE
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
-import numpy as np
 import pandas as pd
 from photutils.aperture import (CircularAnnulus, CircularAperture,
                                 aperture_photometry)
@@ -13,7 +12,7 @@ from pyraf import iraf
 from sep import sum_circle
 
 from .base_logger import logger
-from .errors import NumberOfElemetError
+from .errors import NumberOfElementError
 from .fits import FitsArray
 from .utils import Fixer
 
@@ -33,7 +32,7 @@ class APhot:
     def __init__(self, fits_array: FitsArray) -> None:
         """Constructor method
         """
-        logger.info("Creating an instnce from APhot")
+        logger.info("Creating an instance from APhot")
         self.fits_array = fits_array
         self.ZMag = 25
 
@@ -52,7 +51,7 @@ class APhot:
         self, flux: float, flux_error: float, exptime: float
     ) -> Tuple[float, float]:
         logger.info(
-            f"Converting to mag from flux. Prameters: {flux=}, {flux_error=}, {exptime=}"
+            f"Converting to mag from flux. Parameters: {flux=}, {flux_error=}, {exptime=}"
         )
         if exptime == 0:
             mag = self.ZMag + -2.5 * math.log10(flux)
@@ -66,7 +65,7 @@ class APhot:
         return mag, merr
 
     def __extract(self, keys: Union[str, list[str]]) -> pd.DataFrame:
-        logger.info(f"Extracting header from FitsArray. Prameters: {keys=}")
+        logger.info(f"Extracting header from FitsArray. Parameters: {keys=}")
         headers = self.fits_array.hselect(keys)
         return headers
 
@@ -80,18 +79,15 @@ class APhot:
         """
         fa = FitsArray.from_pattern('pattern')
         aphot = APhot(fa)
-        photomrtry = aphot.photutils(SOURCES, APERTURE)
+        photometry = aphot.photutils(SOURCES, APERTURE)
 
         Does photometry of given FitsArray using `photutils` and returns a pd.DataFrame.
         
         :param points: A dataframe with `x` (`xcentroid`) and `y` (`ycentroid`) coordinates of sources for photometry
         :type points: pd.DataFrame
         
-        :param fits_array: Aperture value
-        :type fits_array: float
-
-        radius_out: float, optional
-            Radius for sky measurements
+        :param radius: Aperture value
+        :type radius: float
         
         :param radius_out: Radius for sky measurements
         :type radius_out: FitsArray (, optional)
@@ -99,15 +95,15 @@ class APhot:
         :param extract: Headers to be extracted from fits files during photometry
         :type extract: str o List[str] (, optional)
 
-        :return: Phptometric result
+        :return: Photometric result
         :rtype: pd.DataFrame
         """
         logger.info(
-            f"Photutils photometry. Prameters: {points=}, {radius=}, {radius_out=}, {extract=}"
+            f"Photutils photometry. Parameters: {points=}, {radius=}, {radius_out=}, {extract=}"
         )
         if len(points) < 1:
             logger.error("No coordinates were found")
-            raise NumberOfElemetError("No coordinates were found")
+            raise NumberOfElementError("No coordinates were found")
 
         table = []
         if radius_out is None:
@@ -172,7 +168,7 @@ class APhot:
         """
         fa = FitsArray.from_pattern('pattern')
         aphot = APhot(fa)
-        photomrtry = aphot.sep(SOURCES, APERTURE)
+        photometry = aphot.sep(SOURCES, APERTURE)
 
         Does photometry of given FitsArray using `sep` and returns a pd.DataFrame.
         
@@ -188,14 +184,14 @@ class APhot:
         :param extract: Headers to be extracted from fits files during photometry
         :type extract: str o List[str] (, optional)
 
-        :return: Phptometric result
+        :return: Photometric result
         :rtype: pd.DataFrame
         """
         logger.info(
-            f"sep photometry. Prameters: {points=}, {radius=}, {extract=}")
+            f"sep photometry. Parameters: {points=}, {radius=}, {extract=}")
         if len(points) < 1:
             logger.error("No coordinates were found")
-            raise NumberOfElemetError("No coordinates were found")
+            raise NumberOfElementError("No coordinates were found")
 
         table = []
         for fits in self.fits_array:
@@ -252,7 +248,7 @@ class APhot:
         """
         fa = FitsArray.from_pattern('pattern')
         aphot = APhot(fa)
-        photomrtry = aphot.iraf(SOURCES, APERTURE)
+        photometry = aphot.iraf(SOURCES, APERTURE)
 
         Does photometry of given FitsArray using `iraf` and returns a pd.DataFrame.
         
@@ -265,19 +261,19 @@ class APhot:
         :param annulus: Annulus for sky measurements
         :type annulus: float (, optional)
         
-        :param dannulus: Dannulus for sky measurements
-        :type dannulus: float (, optional)
+        :param dannulu: Dannulu for sky measurements
+        :type dannulu: float (, optional)
         
         :param extract: Headers to be extracted from fits files during photometry
         :type extract: str o List[str] (, optional)
 
-        :return: Phptometric result
+        :return: Photometric result
         :rtype: pd.DataFrame
         """
         logger.info("iraf photometry")
         if len(points) < 1:
             logger.error("No coordinates were found")
-            raise NumberOfElemetError("No coordinates were found")
+            raise NumberOfElementError("No coordinates were found")
 
         iraf.digiphot.apphot.datapars.unlearn()
         iraf.digiphot.apphot.centerpars.unlearn()

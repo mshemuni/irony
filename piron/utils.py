@@ -15,7 +15,7 @@ from .errors import (EmissionValueError, NoiseValueError, OperandValueError,
 class Fixer:
     @classmethod
     def fitsify(cls, path: str):
-        logger.info(f"fitsify started. Prameters: {path=}")
+        logger.info(f"fitsify started. Parameters: {path=}")
 
         if not (path.endswith("fit") or path.endswith("fits")):
             return f"{path}.fits"
@@ -24,7 +24,7 @@ class Fixer:
 
     @classmethod
     def nonify(cls, value: str):
-        logger.info(f"nonify started. Prameters: {value=}")
+        logger.info(f"nonify started. Parameters: {value=}")
 
         if value is None:
             return "none"
@@ -41,7 +41,7 @@ class Fixer:
         suffix: str = ".fits",
     ):
         logger.info(
-            f"output started. Prameters: {value=}, {override=}, {delete=}, {prefix=}, {suffix=}"
+            f"output started. Parameters: {value=}, {override=}, {delete=}, {prefix=}, {suffix=}"
         )
 
         if value is None:
@@ -62,7 +62,7 @@ class Fixer:
     @contextlib.contextmanager
     def to_new_directory(cls, output, fits_array):
         logger.info(
-            f"to_new_directory started. Prameters: {output=}, {fits_array=}")
+            f"to_new_directory started. Parameters: {output=}, {fits_array=}")
 
         if output is None or not Path(output).is_dir():
             output = tempfile.mkdtemp(prefix="piron_")
@@ -82,7 +82,7 @@ class Fixer:
     @classmethod
     @contextlib.contextmanager
     def at_file_from_list(cls, data):
-        logger.info(f"at_file_from_list started. Prameters: {data=}")
+        logger.info(f"at_file_from_list started. Parameters: {data=}")
 
         with tempfile.NamedTemporaryFile(
             delete=True, prefix="piron_", suffix=".fls", mode="w"
@@ -94,13 +94,13 @@ class Fixer:
 
     @classmethod
     def yesnoify(cls, value):
-        logger.info(f"yesnoify started. Prameters: {value=}")
+        logger.info(f"yesnoify started. Parameters: {value=}")
 
         return "yes" if value else "no"
 
     @classmethod
     def iraf_coords(cls, points: pd.DataFrame):
-        logger.info(f"iraf_coords started. Prameters: {points=}")
+        logger.info(f"iraf_coords started. Parameters: {points=}")
 
         file_name = tempfile.NamedTemporaryFile(
             delete=False, prefix="piron_", suffix=".coo"
@@ -112,7 +112,7 @@ class Fixer:
 
     @classmethod
     def list_to_source(cls, sources: List[List[float]]) -> pd.DataFrame:
-        logger.info(f"list_to_source started. Prameters: {sources=}")
+        logger.info(f"list_to_source started. Parameters: {sources=}")
 
         return pd.DataFrame(sources, columns=["xcentroid", "ycentroid"])
 
@@ -132,7 +132,7 @@ class Fixer:
 class Check:
     @classmethod
     def emision(cls, value: str):
-        logger.info(f"emision checking. Prameters: {value=}")
+        logger.info(f"emision checking. Parameters: {value=}")
 
         if not value.lower() in ["yes", "no"]:
             raise EmissionValueError(
@@ -140,7 +140,7 @@ class Check:
 
     @classmethod
     def noise(cls, value: str):
-        logger.info(f"noise checking. Prameters: {value=}")
+        logger.info(f"noise checking. Parameters: {value=}")
 
         if not value.lower() in ["poisson", "constant"]:
             raise NoiseValueError(
@@ -148,7 +148,7 @@ class Check:
 
     @classmethod
     def operation(cls, value: str):
-        logger.info(f"operation checking. Prameters: {value=}")
+        logger.info(f"operation checking. Parameters: {value=}")
 
         if value not in ["average", "median"]:
             raise OperationValueError(
@@ -157,7 +157,7 @@ class Check:
 
     @classmethod
     def rejection(cls, value: str):
-        logger.info(f"rejection checking. Prameters: {value=}")
+        logger.info(f"rejection checking. Parameters: {value=}")
 
         if value not in [
             "none",
@@ -175,7 +175,7 @@ class Check:
 
     @classmethod
     def operand(cls, value: str):
-        logger.info(f"operand checking. Prameters: {value=}")
+        logger.info(f"operand checking. Parameters: {value=}")
 
         if value not in ["+", "-", "*", "/"]:
             raise OperandValueError(
@@ -183,7 +183,7 @@ class Check:
 
     @classmethod
     def scale(cls, value: str):
-        logger.info(f"scale checking. Prameters: {value=}")
+        logger.info(f"scale checking. Parameters: {value=}")
 
         if value not in ["none", "mode", "median", "mean", "exposure", None]:
             raise ScaleValueError(
@@ -192,6 +192,6 @@ class Check:
 
     @classmethod
     def is_none(cls, value: str):
-        logger.info(f"is_none checking. Prameters: {value=}")
+        logger.info(f"is_none checking. Parameters: {value=}")
 
         return value is None or value.lower() == "none"

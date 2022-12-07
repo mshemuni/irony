@@ -5,7 +5,7 @@ import tempfile
 from glob import glob
 from pathlib import Path
 from subprocess import PIPE
-from typing import Dict, List, Union, Iterator
+from typing import Dict, List, Union, Iterator, Hashable
 
 import astroalign
 import matplotlib.animation as animation
@@ -40,7 +40,7 @@ class Fits:
     def __init__(self, path: Path):
         """Constructor method
         """
-        logger.info(f"Creating an instnce from {self.__class__.__name__}")
+        logger.info(f"Creating an instance from {self.__class__.__name__}")
         if not path.exists():
             raise FileNotFoundError("File does not exist")
 
@@ -71,7 +71,7 @@ class Fits:
         :return: Fits Object
         :rtype: Fits
         """
-        logger.info(f"Creating Fits from path. Prameters: {path=}")
+        logger.info(f"Creating Fits from path. Parameters: {path=}")
         return Fits(Path(path))
 
     @property
@@ -80,12 +80,13 @@ class Fits:
         fts = Fits.from_path('file_path')
         fts.imstat
 
-        returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a dict. The default return of IRAF's `imstatistics` task.
+        returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a dict. The default return of IRAF's
+        `imstatistics` task.
 
-        :return: dictionary of stistics
+        :return: dictionary of statistics
         :rtype: dict
         """
-        logger.info(f"imstat started. Prameters: None")
+        logger.info(f"imstat started. Parameters: None")
 
         iraf.imutil.imstatistics.unlearn()
         keys = ["npix", "mean", "stddev", "min", "max"]
@@ -109,7 +110,7 @@ class Fits:
         :return: dictionary of headers
         :rtype: dict
         """
-        logger.info(f"Getting header. Prameters: None")
+        logger.info(f"Getting header. Parameters: None")
 
         header = fts.getheader(abs(self))
         return {i: header[i] for i in header if i}
@@ -125,7 +126,7 @@ class Fits:
         :return: array of data
         :rtype: np.ndarray
         """
-        logger.info(f"Getting data. Prameters: None")
+        logger.info(f"Getting data. Parameters: None")
 
         return fts.getdata(abs(self)).astype(float)
 
@@ -143,7 +144,7 @@ class Fits:
         :return: Either a background Object or a np.array
         :rtype: Union[Background, np.ndarray]
         """
-        logger.info(f"Getting background. Prameters: {as_array=}")
+        logger.info(f"Getting background. Parameters: {as_array=}")
 
         if as_array:
             return Background(self.data).back()
@@ -171,14 +172,14 @@ class Fits:
         :param delete: deletes the key from header if `True`.
         :type delete: bool (, optional)
 
-        :param as_array: adds value of the key given in `values` if `True`. Would be ignored if `delete` is `True`.
-        :type as_array: bool (, optional)
+        :param value_is_key: adds value of the key given in `values` if `True`. Would be ignored if `delete` is `True`.
+        :type value_is_key: bool (, optional)
 
         :return: none
         :rtype: None
         """
         logger.info(
-            f"hedit started. Prameters: {keys=}, {values=}, {delete=}, {value_is_key=}, {keys=}"
+            f"hedit started. Parameters: {keys=}, {values=}, {delete=}, {value_is_key=}, {keys=}"
         )
 
         if delete:
@@ -191,7 +192,7 @@ class Fits:
                         del hdu[0].header[key]
         else:
 
-            if not isinstance(keys, type(values)):
+            if not isinstance(values, type(keys)):
                 logger.error(
                     f"keys and values must both be strings or list of strings")
                 raise ValueError(
@@ -201,7 +202,7 @@ class Fits:
             if isinstance(keys, str):
                 keys = [keys]
 
-            if isinstance(value, str):
+            if isinstance(values, str):
                 values = [values]
 
             if len(keys) != len(values):
@@ -233,7 +234,7 @@ class Fits:
         :return: new Fits object of saved fits file
         :rtype: Fits
         """
-        logger.info(f"saving as. Prameters: {path=}, {override=}")
+        logger.info(f"saving as. Parameters: {path=}, {override=}")
 
         path = Fixer.output(path, override=override)
 
@@ -271,7 +272,7 @@ class Fits:
         :rtype: Fits
         """
         logger.info(
-            f"imarith started. Prameters: {other=}, {operand=}, {output=}, {override=}"
+            f"imarith started. Parameters: {other=}, {operand=}, {output=}, {override=}"
         )
 
         if not isinstance(other, (float, int, Fits)):
@@ -308,8 +309,9 @@ class Fits:
 
         Runs daofind to detect sources on the image.
         
-        :param sigma: The number of standard deviations to use for both the lower and upper clipping limit. These limits are overridden by sigma_lower and sigma_upper, if input. The default is 3. [1]
-        :type sigma: float (, optional)
+        :param sigma: The number of standard deviations to use for both the lower and upper clipping limit. These
+        limits are overridden by sigma_lower and sigma_upper, if input. The default is 3. [1] :type sigma: float (,
+        optional)
         
         :param fwhm: The full-width half-maximum (FWHM) of the major axis of the Gaussian kernel in units of pixels. [2]
         :type fwhm: float (, optional)
@@ -324,7 +326,7 @@ class Fits:
         :rtype: pd.DataFrame
         """
         logger.info(
-            f"daofind started. Prameters: {sigma=}, {fwhm=}, {threshold=}")
+            f"daofind started. Parameters: {sigma=}, {fwhm=}, {threshold=}")
 
         mean, median, std = sigma_clipped_stats(self.data, sigma=sigma)
         daofind = DAOStarFinder(fwhm=fwhm, threshold=threshold * std)
@@ -389,7 +391,8 @@ class Fits:
 
         """
         logger.info(
-            f"align started. Prameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}, {min_area=}, {override=}"
+            f"align started. Parameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}"
+            f", {min_area=}, {override=} "
         )
 
         output = Fixer.output(output, override=override)
@@ -426,7 +429,7 @@ class Fits:
         :return: none
         :rtype: None
         """
-        logger.info(f"showing image. Prameters: {points=}, {scale=}")
+        logger.info(f"showing image. Parameters: {points=}, {scale=}")
 
         if scale:
             zscale = ZScaleInterval()
@@ -464,13 +467,13 @@ class Fits:
 
         fig, ax = plt.subplots(constrained_layout=True)
         ax.imshow(zscale(self.data), cmap="Greys_r")
-        klicker = clicker(ax, ["source"], markers=["x"])
+        klkr = clicker(ax, ["source"], markers=["x"])
         plt.show()
-        if len(klicker.get_positions()["source"]) == 0:
+        if len(klkr.get_positions()["source"]) == 0:
             return pd.DataFrame([], columns=["xcentroid", "ycentroid"])
 
         return pd.DataFrame(
-            klicker.get_positions()["source"], columns=[
+            klkr.get_positions()["source"], columns=[
                 "xcentroid", "ycentroid"])
 
 
@@ -488,7 +491,7 @@ class FitsArray:
     def __init__(self, fits_list: List[Fits]) -> None:
         """Constructor method
         """
-        logger.info(f"Creating an instnce from {self.__class__.__name__}")
+        logger.info(f"Creating an instance from {self.__class__.__name__}")
 
         if len(fits_list) < 1:
             raise ImageCountError("No image was provided")
@@ -518,15 +521,21 @@ class FitsArray:
         Creates a FitsArray Object
         The length of `glob('file_path*.fit*')` must be larger then 0.
         
-        :param fits_list: A list of strings of pahs
-        :type fits_list: List[str]
+        :param paths: A list of strings of paths
+        :type paths: List[str]
 
         :return: FitsArray generated from list of paths as str
         :rtype: FitsArray
         """
-        logger.info(f"Creating FitsArray from from_paths. Prameters: {paths}")
+        logger.info(f"Creating FitsArray from from_paths. Parameters: {paths}")
+        files = []
+        for each in map(Path, paths):
+            try:
+                files.append(Fits(each))
+            except FileNotFoundError:
+                pass
 
-        return FitsArray(list(map(Fits, map(Path, paths))))
+        return FitsArray(list(files))
 
     @classmethod
     def from_pattern(cls, pattern: str) -> FitsArray:
@@ -543,7 +552,7 @@ class FitsArray:
         :rtype: FitsArray
         """
         logger.info(
-            f"Creating FitsArray from from_paths. Prameters: {pattern}")
+            f"Creating FitsArray from from_paths. Parameters: {pattern}")
 
         return FitsArray(list(map(Fits, map(Path, glob(pattern)))))
 
@@ -557,10 +566,10 @@ class FitsArray:
 
         Creates a text file with all fits file paths at each line. Useful for IRAF's `@file`s.
 
-        :return: a contect manager of an a file containing file path of each file
+        :return: a context manager of an a file containing file path of each file
         :rtype: Generator[str]
         """
-        logger.info(f"Creating at_file. Prameters: None")
+        logger.info(f"Creating at_file. Parameters: None")
 
         with tempfile.NamedTemporaryFile(
             mode="w", delete=True, suffix=".fls", prefix="piron_"
@@ -578,12 +587,13 @@ class FitsArray:
         fa = FitsArray.from_pattern('pattern')
         fa.imstat
 
-        returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a pd.DataFrame. The default return of IRAF's `imstatistics` task.
+        returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a pd.DataFrame. The default return of
+        IRAF's `imstatistics` task.
 
         :return: List of statistics of all files
         :rtype: pd.DataFrame
         """
-        logger.info(f"imstat started. Prameters: None")
+        logger.info(f"imstat started. Parameters: None")
 
         iraf.imutil.imstatistics.unlearn()
         with self.at_file() as at_file:
@@ -617,7 +627,7 @@ class FitsArray:
         :return: List of headers of all files
         :rtype: pd.DataFrame
         """
-        logger.info(f"getting header. Prameters: None")
+        logger.info(f"getting header. Parameters: None")
 
         headers = []
         for each in self:
@@ -656,7 +666,7 @@ class FitsArray:
         :rtype: None
         """
         logger.info(
-            f"hedit started. Prameters: {keys=}, {values=}, {delete=}, {value_is_key=}"
+            f"hedit started. Parameters: {keys=}, {values=}, {delete=}, {value_is_key=}"
         )
 
         if delete:
@@ -701,13 +711,13 @@ class FitsArray:
 
         returns the header of the fits file(s) as a pd.DataFrame. The return of IRAF's `imheader` task with `l+`.
         
-        :param value_is_key: Keys to be returned
-        :type value_is_key: str or List[str]
+        :param fields: Keys to be returned
+        :type fields: str or List[str]
 
         :return: List of selected headers of all files
         :rtype: pd.DataFrame
         """
-        logger.info(f"hselect started. Prameters: {fields=}")
+        logger.info(f"hselect started. Parameters: {fields=}")
 
         if isinstance(fields, str):
             fields = [fields]
@@ -738,6 +748,9 @@ class FitsArray:
         :param other: the value to be added to image array.
         :type other: FitsArray, List[float], List[int], Fits, float or int
 
+        :param operand: An arithmetic operator. Either `+`, `-`, `*` or `/`
+        :type operand: str
+
         :param output: path of the new fits files.
         :type output: str (, optional)
 
@@ -745,7 +758,7 @@ class FitsArray:
         :rtype: FitsArray
         """
         logger.info(
-            f"imarith started. Prameters: {other=}, {operand=}, {output=}")
+            f"imarith started. Parameters: {other=}, {operand=}, {output=}")
 
         if not isinstance(other, (float, int, FitsArray, Fits, List)):
             logger.error(
@@ -828,14 +841,14 @@ class FitsArray:
         :rtype: FitsArray
         """
         logger.info(
-            f"align started. Prameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}, {min_area=}"
+            f"align started. Parameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}, {min_area=}"
         )
 
         with Fixer.to_new_directory(output, self) as new_files:
             with open(new_files, "r") as f2r:
                 aligned_files = []
-                new_filees = f2r.readlines()
-                for fits, new_file in zip(self, new_filees):
+                new_files = f2r.readlines()
+                for fits, new_file in zip(self, new_files):
                     try:
                         new_fits = fits.align(
                             other,
@@ -865,13 +878,13 @@ class FitsArray:
         :param scale: Scales the Image if `True`
         :type scale: bool (, optional)
         
-        :param interval: Interval of the animation. The smaller the value the fatser the animation.
+        :param interval: Interval of the animation. The smaller the value the faster the animation.
         :type interval: float (, optional)
 
         :return: none
         :rtype: None
         """
-        logger.info(f"animating images. Prameters: {scale=}, {interval=}")
+        logger.info(f"animating images. Parameters: {scale=}, {interval=}")
 
         fig = plt.figure()
 
@@ -888,15 +901,15 @@ class FitsArray:
 
         def updatefig(args):
             im.set_array(zscale(self[args % len(self)].data))
-            return (im,)
+            return im,
 
-        ani = animation.FuncAnimation(
+        _ = animation.FuncAnimation(
             fig, updatefig, interval=interval, blit=True)
         plt.show()
 
     def groupby(
         self, groups: Union[str, List[str]]
-    ) -> Dict[Union[str, float, int], FitsArray]:
+    ) -> Dict[Hashable, FitsArray]:
         """
         fa = FitsArray.from_pattern('pattern')
         fa.groupby("key")
@@ -908,10 +921,10 @@ class FitsArray:
         :param groups: Key(s)
         :type groups: str or List[str]
 
-        :return: a dictionary of groupped images
+        :return: a dictionary of grouped images
         :rtype: dict
         """
-        logger.info(f"groupby started. Prameters: {groups=}")
+        logger.info(f"groupby started. Parameters: {groups=}")
 
         if isinstance(groups, str):
             groups = [groups]
@@ -924,13 +937,13 @@ class FitsArray:
             if group not in headers.columns:
                 headers[group] = "N/A"
 
-        groupped = {}
+        grouped = {}
         for keys, df in headers.fillna("N/A").groupby(groups, dropna=False):
-            groupped[keys] = FitsArray.from_paths(df.index.tolist())
+            grouped[keys] = FitsArray.from_paths(df.index.tolist())
 
-        return groupped
+        return grouped
 
-    def save_as(self, output: str) -> Fits:
+    def save_as(self, output: str) -> FitsArray:
         """
         fa = FitsArray.from_pattern('pattern')
         fa.save_as('new_path')
@@ -943,7 +956,7 @@ class FitsArray:
         :return: new FitsArray object of saved fits files
         :rtype: FitsArray
         """
-        logger.info(f"saving as. Prameters: {output=}")
+        logger.info(f"saving as. Parameters: {output=}")
         with self.at_file() as self_at:
             with Fixer.to_new_directory(output, self) as new_at:
 

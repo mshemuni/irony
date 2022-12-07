@@ -1,5 +1,4 @@
 from subprocess import PIPE
-from typing import Union
 
 from pyraf import iraf
 
@@ -18,16 +17,15 @@ class Calibration:
     
     :param fits_array: A FitsArray
     :type fits_array: FitsArray
-
     """
     
     def __init__(self, fits_array: FitsArray) -> None:
         """Constructor method
         """
-        logger.info(f"Creating an instnce from {self.__class__.__name__}")
+        logger.info(f"Creating an instance from {self.__class__.__name__}")
         if len(fits_array) < 1:
-            logger.error("There is no image to proccess")
-            raise ImageCountError("There is no image to proccess")
+            logger.error("There is no image to process")
+            raise ImageCountError("There is no image to process")
 
         self.fits_array = fits_array
         iraf.noao(Stdout=PIPE)
@@ -49,7 +47,7 @@ class Calibration:
     ) -> FitsArray:
         """
         zero = Fits.from_path("ZERO_FILE")
-        dark = Fits.from_path("DAKR_FILE")
+        dark = Fits.from_path("DARK_FILE")
         flat = Fits.from_path("FLAT_FILE")
         fa = FitsAray.from_pattern('pattern')
         ca = Calibration(fa)
@@ -73,7 +71,7 @@ class Calibration:
         :rtype: FitsArray
         """
         logger.info(
-            f"Calibration started. Prameters: {output=}, {zero=}, {dark=}, {flat=}"
+            f"Calibration started. Parameters: {output=}, {zero=}, {dark=}, {flat=}"
         )
         if all([v is None for v in [zero, dark, flat]]):
             logger.error(
@@ -106,5 +104,5 @@ class Calibration:
                     flatcor=Fixer.yesnoify(flat is not None),
                     flat=flat_path,
                 )
-                with open(new_files, "r") as new_files:
-                    return FitsArray.from_paths(new_files.read().split())
+                with open(new_files, "r") as to_save:
+                    return FitsArray.from_paths(to_save.read().split())

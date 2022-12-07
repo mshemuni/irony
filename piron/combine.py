@@ -1,4 +1,3 @@
-import time
 from subprocess import PIPE
 
 from pyraf import iraf
@@ -23,9 +22,9 @@ class Combine:
     def __init__(self, fits_array: FitsArray) -> None:
         """Constructor method
         """
-        logger.info(f"Creating an instnce from {self.__class__.__name__}")
+        logger.info(f"Creating an instance from {self.__class__.__name__}")
         if len(fits_array) < 1:
-            raise ImageCountError("There is no image to proccess")
+            raise ImageCountError("There is no image to process")
 
         self.fits_array = fits_array
         iraf.noao(Stdout=PIPE)
@@ -71,7 +70,7 @@ class Combine:
         :rtype: Fits
         """
         logger.info(
-            f"combine started. Prameters: {operation=}, {output=}, {override=}, {reject=}"
+            f"combine started. Parameters: {operation=}, {output=}, {override=}, {reject=}"
         )
         Check.operation(operation)
         Check.rejection(reject)
@@ -131,7 +130,7 @@ class Combine:
         :rtype: Fits
         """
         logger.info(
-            f"zerocombine started. Prameters: {operation=}, {output=}, {override=}, {reject=}"
+            f"zerocombine started. Parameters: {operation=}, {output=}, {override=}, {reject=}"
         )
         Check.operation(operation)
         Check.rejection(reject)
@@ -195,7 +194,7 @@ class Combine:
         :rtype: Fits
         """
         logger.info(
-            f"darkcombine started. Prameters: {operation=}, {output=}, {override=}, {reject=}, {scale=}"
+            f"darkcombine started. Parameters: {operation=}, {output=}, {override=}, {reject=}, {scale=}"
         )
         Check.operation(operation)
         Check.rejection(reject)
@@ -263,7 +262,7 @@ class Combine:
         :rtype: Fits
         """
         logger.info(
-            f"flatcombine started. Prameters: {operation=}, {output=}, {override=}, {reject=}, {scale=}"
+            f"flatcombine started. Parameters: {operation=}, {output=}, {override=}, {reject=}, {scale=}"
         )
         Check.operation(operation)
         Check.rejection(reject)
@@ -315,7 +314,7 @@ class Combine:
         :return: sum of FitsArray
         :rtype: Fits
         """
-        logger.info(f"imsum started. Prameters:{output=}, {override=}")
+        logger.info(f"imsum started. Parameters:{output=}, {override=}")
         if len(self.fits_array) < 2:
             logger.error("Not enough image found")
             raise ImageCountError("Not enough image found")
