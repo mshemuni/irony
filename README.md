@@ -9,11 +9,11 @@ pip install piron
 ```
 
 ## Examples
-- [Fits](001-fits.ipynb)
-- [FitsArray](002-fits_array.ipynb)
-- [Calibration](003-calibration.ipynb)
-- [Align](004-align.ipynb)
-- [Photometry](005-phot.ipynb)
+- [Fits](examples/001-fits.ipynb)
+- [FitsArray](examples/002-fits_array.ipynb)
+- [Calibration](examples/003-calibration.ipynb)
+- [Align](examples/004-align.ipynb)
+- [Photometry](examples/005-phot.ipynb)
 
 ## License
 
