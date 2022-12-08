@@ -10,17 +10,14 @@ from .utils import Fixer
 
 class Calibration:
     """
-    fa = FitsAray('pattern')
-    Calibration(fa)
-
-    Creates a Calibration Object
+    Creates a Calibration Object.
     
-    :param fits_array: A FitsArray
+    :param fits_array: A `FitsArray`.
     :type fits_array: FitsArray
     """
     
     def __init__(self, fits_array: FitsArray) -> None:
-        """Constructor method
+        """Constructor method.
         """
         logger.info(f"Creating an instance from {self.__class__.__name__}")
         if len(fits_array) < 1:
@@ -46,28 +43,21 @@ class Calibration:
         output: str = None,
     ) -> FitsArray:
         """
-        zero = Fits.from_path("ZERO_FILE")
-        dark = Fits.from_path("DARK_FILE")
-        flat = Fits.from_path("FLAT_FILE")
-        fa = FitsAray.from_pattern('pattern')
-        ca = Calibration(fa)
-        calibrated = ca.calibrate(zero=zero, dark=dark, flat=flat)
-
-        returns the calibrated FitsArray
+        Returns the calibrated `FitsArray`.
         
-        :param zero: Fits object of master zero. If None, zero correction will be skipped.
+        :param zero: `Fits` object of master zero. If `None`, zero correction will be skipped.
         :type zero: Fits
         
-        :param dark: Fits object of master dark. If None, dark correction will be skipped.
+        :param dark: `Fits` object of master dark. If `None`, dark correction will be skipped.
         :type dark: Fits
         
-        :param flat: Fits object of master flat. If None, flat correction will be skipped.
+        :param flat: `Fits` object of master flat. If `None`, flat correction will be skipped.
         :type flat: Fits
         
-        :param output: path of the new fits file.
+        :param output: Path of the new fits file.
         :type output: str (, optional)
 
-        :return: Calibrated FitsArray
+        :return: Calibrated `FitsArray`.
         :rtype: FitsArray
         """
         logger.info(

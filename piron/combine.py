@@ -10,17 +10,14 @@ from .utils import Check, Fixer
 
 class Combine:
     """
-    fa = FitsAray('pattern')
-    Combine(fa)
-
-    Creates a Combine Object
+    Creates a Combine Object.
     
-    :param fits_array: A FitsArray
+    :param fits_array: A `FitsArray`.
     :type fits_array: FitsArray
     """
     
     def __init__(self, fits_array: FitsArray) -> None:
-        """Constructor method
+        """Constructor method.
         """
         logger.info(f"Creating an instance from {self.__class__.__name__}")
         if len(fits_array) < 1:
@@ -48,11 +45,7 @@ class Combine:
         reject: str = None,
     ) -> Fits:
         """
-        fa = FitsAray.from_pattern('pattern')
-        co = Combine(fa)
-        caombined = co.combine('operation_type')
-
-        returns the combined Fits of FitsArray
+        Returns the combined `Fits` of `FitsArray`.
         
         :param operation: Type of operation. 
         :type operation: str
@@ -60,13 +53,13 @@ class Combine:
         :param output: path of the new fits file.
         :type output: str (, optional)
         
-        :param override: force the output if a file with the same name already exist
+        :param override: Force (overwrite) the output if a file with the same name already exist.
         :type override: bool (, optional)
         
-        :param reject: rejection method
+        :param reject: Rejection method.
         :type reject: str (, optional)
 
-        :return: Combined Fits of FitsArray
+        :return: Combined `Fits` of `FitsArray`.
         :rtype: Fits
         """
         logger.info(
@@ -108,25 +101,21 @@ class Combine:
         reject: str = None,
     ) -> Fits:
         """
-        fa = FitsAray.from_pattern('pattern')
-        co = Combine(fa)
-        caombined = co.zerocombine('operation_type')
-
-        returns the zerocombine Fits of FitsArray
+        Returns the zerocombine `Fits` of `FitsArray`.
         
         :param operation: Type of operation. 
         :type operation: str
         
-        :param output: path of the new fits file.
+        :param output: Path of the new fits file.
         :type output: str (, optional)
         
-        :param override: force the output if a file with the same name already exist
+        :param override: Force (overwrite) the output if a file with the same name already exist.
         :type override: bool (, optional)
         
-        :param reject: rejection method
+        :param reject: Rejection method.
         :type reject: str (, optional)
 
-        :return: Combined Fits of FitsArray
+        :return: Combined `Fits` of `FitsArray`.
         :rtype: Fits
         """
         logger.info(
@@ -169,28 +158,24 @@ class Combine:
         scale: str = None,
     ) -> Fits:
         """
-        fa = FitsAray.from_pattern('pattern')
-        co = Combine(fa)
-        caombined = co.darkcombine('operation_type')
-
-        returns the darkcombine Fits of FitsArray
+        Returns the darkcombine `Fits` of `FitsArray`.
         
         :param operation: Type of operation. 
         :type operation: str
         
-        :param output: path of the new fits file.
+        :param output: Path of the new fits file.
         :type output: str (, optional)
         
-        :param override: force the output if a file with the same name already exist
+        :param override: Force (overwrite) the output if a file with the same name already exist.
         :type override: bool (, optional)
         
-        :param reject: rejection method
+        :param reject: Rejection method.
         :type reject: str (, optional)
         
-        :param scale: scaling method
+        :param scale: Scaling method.
         :type scale: str (, optional)
 
-        :return: Combined Fits of FitsArray
+        :return: Combined `Fits` of `FitsArray`.
         :rtype: Fits
         """
         logger.info(
@@ -237,28 +222,24 @@ class Combine:
         scale: str = None,
     ) -> Fits:
         """
-        fa = FitsAray.from_pattern('pattern')
-        co = Combine(fa)
-        caombined = co.flatcombine('operation_type')
-
-        returns the flatcombine Fits of FitsArray
+        Returns the flatcombine `Fits` of `FitsArray`.
         
         :param operation: Type of operation. 
         :type operation: str
         
-        :param output: path of the new fits file.
+        :param output: Path of the new fits file.
         :type output: str (, optional)
         
-        :param override: force the output if a file with the same name already exist
+        :param override: Force (overwrite) the output if a file with the same name already exist.
         :type override: bool (, optional)
         
-        :param reject: rejection method
+        :param reject: Rejection method.
         :type reject: str (, optional)
         
-        :param scale: scaling method
+        :param scale: Scaling method.
         :type scale: str (, optional)
 
-        :return: Combined Fits of FitsArray
+        :return: Combined `Fits` of `FitsArray`.
         :rtype: Fits
         """
         logger.info(
@@ -298,20 +279,16 @@ class Combine:
 
     def imsum(self, output: str = None, override: bool = False) -> Fits:
         """
-        fa = FitsAray.from_pattern('pattern')
-        co = Combine(fa)
-        caombined = co.imsum()
-
-        returns the imsum Fits of FitsArray
+        Returns the imsum `Fits` of `FitsArray`.
         
         
-        :param output: path of the new fits file.
+        :param output: Path of the new fits file.
         :type output: str (, optional)
         
-        :param override: force the output if a file with the same name already exist
+        :param override: Force (overwrite) the output if a file with the same name already exist.
         :type override: bool (, optional)
 
-        :return: sum of FitsArray
+        :return: sum of `FitsArray`.
         :rtype: Fits
         """
         logger.info(f"imsum started. Parameters:{output=}, {override=}")

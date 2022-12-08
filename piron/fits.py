@@ -27,18 +27,15 @@ from .utils import Check, Fixer
 
 class Fits:
     """
-    Fits(Path('file_path'))
-
-    Creates a Fits Object
-    The `file_path` must exist.
+    Creates a `Fits` Object. The `file_path` must exist.
     
-    :param path: A Path object of a Fits file
+    :param path: `pathlib.Path` object of the fits file.
     :type path: Path
 
     """
 
     def __init__(self, path: Path):
-        """Constructor method
+        """Constructor method.
         """
         logger.info(f"Creating an instance from {self.__class__.__name__}")
         if not path.exists():
@@ -60,15 +57,12 @@ class Fits:
     @classmethod
     def from_path(cls, path: str) -> Fits:
         """
-        Fits.from_path('file_path')
-
-        Creates a Fits Object
-        The `file_path` must exist.
+        Creates a `Fits` Object. The `file_path` must exist.
         
-        :param path: A path of a Fits file
+        :param path: Path of the fits file.
         :type path: str
 
-        :return: Fits Object
+        :return: Fits Object.
         :rtype: Fits
         """
         logger.info(f"Creating Fits from path. Parameters: {path=}")
@@ -77,13 +71,10 @@ class Fits:
     @property
     def imstat(self) -> dict:
         """
-        fts = Fits.from_path('file_path')
-        fts.imstat
-
-        returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a dict. The default return of IRAF's
+        Returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a `dict`. The default return of `IRAF`'s
         `imstatistics` task.
 
-        :return: dictionary of statistics
+        :return: dictionary of statistics.
         :rtype: dict
         """
         logger.info(f"imstat started. Parameters: None")
@@ -102,12 +93,9 @@ class Fits:
     @property
     def header(self) -> dict:
         """
-        fts = Fits.from_path('file_path')
-        fts.header
+        Returns the header of the fits file as a `dict`. The return of `IRAF`'s `imheader` task with `l+`.
 
-        returns the header of the fits file as a dict. The return of IRAF's `imheader` task with `l+`.
-
-        :return: dictionary of headers
+        :return: dictionary of headers.
         :rtype: dict
         """
         logger.info(f"Getting header. Parameters: None")
@@ -118,12 +106,9 @@ class Fits:
     @property
     def data(self) -> np.ndarray:
         """
-        fts = Fits.from_path('file_path')
-        fts.data
+        Returns the header of the fits file as a `np.array`.
 
-        returns the header of the fits file as a np.array.
-
-        :return: array of data
+        :return: array of data.
         :rtype: np.ndarray
         """
         logger.info(f"Getting data. Parameters: None")
@@ -133,15 +118,12 @@ class Fits:
     def background(
             self, as_array: bool = False) -> Union[Background, np.ndarray]:
         """
-        fts = Fits.from_path('file_path')
-        fts.background()
-
-        returns the background object of the fits file.
+        Returns the background object of the fits file.
         
-        :param as_array: If `True` returns a np.array of background. Otherwise, returns the object itself.
+        :param as_array: If `True` returns a `np.array` of background. Otherwise, returns the object itself.
         :type as_array: bool
 
-        :return: Either a background Object or a np.array
+        :return: Either a background object or a `np.array`.
         :rtype: Union[Background, np.ndarray]
         """
         logger.info(f"Getting background. Parameters: {as_array=}")
@@ -153,17 +135,14 @@ class Fits:
     def hedit(
         self,
         keys: Union[str, List[str]],
-        values: Union[str, List[str], None] = None,
+        values: Union[str, List[str]] = None,
         delete: bool = False,
         value_is_key: bool = False,
     ) -> None:
         """
-        fts = Fits.from_path('file_path')
-        fts.hedit()
-
         Edits header of the given file.
         
-        :param keys: Keys to be altered
+        :param keys: Keys to be altered.
         :type keys: str or List[str]
         
         :param values: values to be added to set be set. Would be ignored if `delete` is `True`.
@@ -175,7 +154,7 @@ class Fits:
         :param value_is_key: adds value of the key given in `values` if `True`. Would be ignored if `delete` is `True`.
         :type value_is_key: bool (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
         """
         logger.info(
@@ -220,18 +199,15 @@ class Fits:
 
     def save_as(self, path: str, override: bool = False) -> Fits:
         """
-        fts = Fits.from_path('file_path')
-        fts.save_as('new_path')
-
-        Saves the Fits file as `new_path`
+        Saves the Fits file as `new_path`.
         
-        :param path: new path to save the file
+        :param path: new path to save the file.
         :type path: str
         
         :param override: If `True` will overwrite the `new_path` if a file is already exists.
         :type override: bool (, optional)
 
-        :return: new Fits object of saved fits file
+        :return: new Fits object of saved fits file.
         :rtype: Fits
         """
         logger.info(f"saving as. Parameters: {path=}, {override=}")
@@ -247,28 +223,25 @@ class Fits:
         self,
         other: Union[Fits, float, int],
         operand: str,
-        output: Union[str, None] = None,
+        output: str = None,
         override: bool = False,
     ) -> Fits:
         """
-        fts = Fits.from_path('file_path')
-        fts.imarith(other, operand)
-
-        makes an arithmeic calculation on the file. The default behaviour of IRAF's `imarith` task.
+        Makes an arithmeic calculation on the file. The default behaviour of `IRAF`'s `imarith` task.
 
         :param other: the value to be added to image array.
         :type other: Fits or float or int
         
-        :param operand: An arithmetic operator. Either `+`, `-`, `*` or `/`
+        :param operand: An arithmetic operator. Either `+`, `-`, `*` or `/`.
         :type operand: str
         
-        :param output: path of the new fits file.
+        :param output: Path of the new fits file.
         :type output: str (, optional)
         
         :param override: If `True` will overwrite the `new_path` if a file is already exists.
         :type override: bool (, optional)
 
-        :return: Fits object of resulting fits of the operation
+        :return: Fits object of resulting fits of the operation.
         :rtype: Fits
         """
         logger.info(
@@ -304,16 +277,14 @@ class Fits:
         self, sigma: float = 3, fwhm: float = 3, threshold: float = 5
     ) -> pd.DataFrame:
         """
-        fts = Fits.from_path('file_path')
-        fts.daofind()
-
-        Runs daofind to detect sources on the image.
+        Runs `daofind` to detect sources on the image.
         
-        :param sigma: The number of standard deviations to use for both the lower and upper clipping limit. These
-        limits are overridden by sigma_lower and sigma_upper, if input. The default is 3. [1] :type sigma: float (,
-        optional)
+        :param sigma: The number of standard deviations to use for both the lower and upper clipping limit.
+        These limits are overridden by sigma_lower and sigma_upper, if input. The default is 3. [1]
+        :type sigma: float (, optional).
         
-        :param fwhm: The full-width half-maximum (FWHM) of the major axis of the Gaussian kernel in units of pixels. [2]
+        :param fwhm: The full-width half-maximum (`FWHM`) of the major axis of the
+        Gaussian kernel in units of pixels. [2]
         :type fwhm: float (, optional)
         
         :param threshold: The absolute image value above which to select sources. [2]
@@ -322,7 +293,7 @@ class Fits:
         [1]: https://docs.astropy.org/en/stable/api/astropy.stats.sigma_clipped_stats.html
         [2]: https://photutils.readthedocs.io/en/stable/api/photutils.detection.DAOStarFinder.html
 
-        :return: List of sources found on the image
+        :return: List of sources found on the image.
         :rtype: pd.DataFrame
         """
         logger.info(
@@ -353,20 +324,16 @@ class Fits:
     def align(
         self,
         other: Fits,
-        output: Union[str, None] = None,
+        output: str = None,
         max_control_points: int = 50,
         detection_sigma: float = 5,
         min_area: int = 5,
         override: bool = False,
     ) -> Fits:
         """
-        fts = Fits.from_path('file_path')
-        other = Fits.from_path('another_file_path')
-        fts.daofind(other)
-
-        Runs a Fits object of aligned Image.
+        Runs a `Fits` object of aligned Image.
         
-        :param other: The reference Image to be aligned as a Fits object
+        :param other: The reference Image to be aligned as a `Fits` object.
         :type other: Fits
         
         :param output: path of the new fits file.
@@ -386,7 +353,7 @@ class Fits:
 
         [1]: https://astroalign.quatrope.org/en/latest/api.html#astroalign.register
 
-        :return: Fits object of aligned image
+        :return: Fits object of aligned image.
         :rtype: Fits
 
         """
@@ -413,20 +380,17 @@ class Fits:
         except ValueError:
             raise AlignError("Cannot align two images")
 
-    def show(self, points: Union[pd.DataFrame, None] = None, scale: bool = True) -> None:
+    def show(self, points: pd.DataFrame = None, scale: bool = True) -> None:
         """
-        fts = Fits.from_path('file_path')
-        fts.show()
-
-        Shows the Image using matplotlib.
+        Shows the Image using `matplotlib`.
         
-        :param points: Draws points on image if a list is given
+        :param points: Draws points on image if a list is given.
         :type points: pd.DataFrame (, optional)
         
-        :param scale: Scales the Image if `True`
+        :param scale: Scales the Image if `True`.
         :type scale: bool (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
         """
         logger.info(f"showing image. Parameters: {points=}, {scale=}")
@@ -447,15 +411,12 @@ class Fits:
 
     def coordinate_picker(self, scale: bool = True):
         """
-        fts = Fits.from_path('file_path')
-        fts.coordinate_picker()
-
-        Shows the Image using matplotlib and returns a list of coordinates picked by user
+        Shows the Image using matplotlib and returns a list of coordinates picked by user.
         
-        :param scale: Scales the Image if `True`
+        :param scale: Scales the Image if `True`.
         :type scale: bool (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
         """
         if scale:
@@ -479,12 +440,9 @@ class Fits:
 
 class FitsArray:
     """
-    FitsArray([Path('file_path1'), Path('file_path2'), ...])
-
-    Creates a FitsArray Object
-    The length of  `fits_list`s must larger the 0.
+    Creates a `FitsArray` Object. The length of  `fits_list`s must larger the 0.
     
-    :param fits_list: A list of Fits
+    :param fits_list: A list of `Fits`.
     :type fits_list: List[Fits]
     """
 
@@ -516,15 +474,12 @@ class FitsArray:
     @classmethod
     def from_paths(cls, paths: List[str]) -> FitsArray:
         """
-        FitsArray.from_paths(glob('file_path*.fit*'))
-
-        Creates a FitsArray Object
-        The length of `glob('file_path*.fit*')` must be larger then 0.
+        Creates a `FitsArray` Object. The length of `glob('file_path*.fit*')` must be larger then 0.
         
-        :param paths: A list of strings of paths
+        :param paths: A list of strings of paths.
         :type paths: List[str]
 
-        :return: FitsArray generated from list of paths as str
+        :return: `FitsArray` generated from list of paths as str.
         :rtype: FitsArray
         """
         logger.info(f"Creating FitsArray from from_paths. Parameters: {paths}")
@@ -540,15 +495,12 @@ class FitsArray:
     @classmethod
     def from_pattern(cls, pattern: str) -> FitsArray:
         """
-        FitsArray.from_pattern('file_path*.fit*')
-
-        Creates a FitsArray Object
-        The length of `glob('file_path*.fit*')` must be larger then 0.
+        Creates a `FitsArray` Object. The length of `glob('file_path*.fit*')` must be larger then 0.
         
-        :param pattern: a pattern of a list of files
+        :param pattern: a pattern of a list of files.
         :type pattern: str
 
-        :return: FitsArray generated from pattern of files
+        :return: `FitsArray` generated from pattern of files.
         :rtype: FitsArray
         """
         logger.info(
@@ -559,14 +511,9 @@ class FitsArray:
     @contextlib.contextmanager
     def at_file(self) -> Iterator[str]:
         """
-        fa = FitsArray.from_paths(glob('file_path*.fit*'))
-        with fa.at_file() as at_file:
-            # Use at_file for
-            pass
+        Creates a text file with all fits file paths at each line. Useful for `IRAF`'s `@file`s.
 
-        Creates a text file with all fits file paths at each line. Useful for IRAF's `@file`s.
-
-        :return: a context manager of an a file containing file path of each file
+        :return: a context manager of a file containing file path of each file.
         :rtype: Generator[str]
         """
         logger.info(f"Creating at_file. Parameters: None")
@@ -584,13 +531,10 @@ class FitsArray:
     @property
     def imstat(self) -> pd.DataFrame:
         """
-        fa = FitsArray.from_pattern('pattern')
-        fa.imstat
+        Returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a `pd.DataFrame`. The default return of
+        `IRAF`'s `imstatistics` task.
 
-        returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a pd.DataFrame. The default return of
-        IRAF's `imstatistics` task.
-
-        :return: List of statistics of all files
+        :return: List of statistics of all files.
         :rtype: pd.DataFrame
         """
         logger.info(f"imstat started. Parameters: None")
@@ -619,12 +563,9 @@ class FitsArray:
     @property
     def header(self) -> pd.DataFrame:
         """
-        fa = FitsArray.from_pattern('pattern')
-        fa.header
+        Returns the header of the fits file(s) as a pd.DataFrame. The return of `IRAF`'s `imheader` task with `l+`.
 
-        returns the header of the fits file(s) as a pd.DataFrame. The return of IRAF's `imheader` task with `l+`.
-
-        :return: List of headers of all files
+        :return: List of headers of all files.
         :rtype: pd.DataFrame
         """
         logger.info(f"getting header. Parameters: None")
@@ -645,12 +586,9 @@ class FitsArray:
         value_is_key: bool = False,
     ) -> None:
         """
-        fa = FitsArray.from_pattern('pattern')
-        fa.hedit("key", "value")
-
         Edits header of the given file.
         
-        :param keys: Keys to be altered
+        :param keys: Keys to be altered.
         :type keys: str or List[str]
         
         :param values: values to be added to set be set. Would be ignored if `delete` is `True`.
@@ -662,7 +600,7 @@ class FitsArray:
         :param value_is_key: adds value of the key given in `values` if `True`. Would be ignored if `delete` is `True`.
         :type value_is_key: bool (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
         """
         logger.info(
@@ -705,16 +643,12 @@ class FitsArray:
 
     def hselect(self, fields: Union[str, List[str]]) -> pd.DataFrame:
         """
-        fa = FitsArray.from_pattern('pattern')
-        fa.hselect("key1")
-        fa.hselect(["key1", "key2", "key3"])
-
-        returns the header of the fits file(s) as a pd.DataFrame. The return of IRAF's `imheader` task with `l+`.
+        Returns the header of the fits file(s) as a `pd.DataFrame`. The return of `IRAF`'s `imheader` task with `l+`.
         
-        :param fields: Keys to be returned
+        :param fields: Keys to be returned.
         :type fields: str or List[str]
 
-        :return: List of selected headers of all files
+        :return: List of selected headers of all files.
         :rtype: pd.DataFrame
         """
         logger.info(f"hselect started. Parameters: {fields=}")
@@ -740,21 +674,18 @@ class FitsArray:
         output: str = None,
     ) -> FitsArray:
         """
-        fa = FitsArray.from_pattern('pattern')
-        fa.imarith(other, operand)
-
-        makes an arithmeic calculation on the file file(s). The default behaviour of IRAF's `imarith` task.
+        Makes an arithmeic calculation on the file(s). The default behaviour of `IRAF`'s `imarith` task.
         
         :param other: the value to be added to image array.
         :type other: FitsArray, List[float], List[int], Fits, float or int
 
-        :param operand: An arithmetic operator. Either `+`, `-`, `*` or `/`
+        :param operand: An arithmetic operator. Either `+`, `-`, `*` or `/`.
         :type operand: str
 
         :param output: path of the new fits files.
         :type output: str (, optional)
 
-        :return: FitsArray object of resulting fits of the operation
+        :return: `FitsArray` object of resulting fits of the operation.
         :rtype: FitsArray
         """
         logger.info(
@@ -815,15 +746,12 @@ class FitsArray:
         min_area: int = 5,
     ) -> FitsArray:
         """
-        fa = FitsArray.from_pattern('pattern')
-        fts.daofind(fa[0])
+        Runs a `FitsArray` object of aligned Image.
 
-        Runs a FitsArray object of aligned Image.
-
-        :param other: The reference Image to be aligned as a Fits 
+        :param other: The reference Image to be aligned as a `Fits`.
         :type other: Fits
 
-        :param output: path of the new fits files.
+        :param output: Path of the new fits files.
         :type output: str (, optional)
         
         :param max_control_points: The maximum number of control point-sources to find the transformation. [1]
@@ -837,7 +765,7 @@ class FitsArray:
 
         [1]: https://astroalign.quatrope.org/en/latest/api.html#astroalign.register
 
-        :return: FitsArray object of aligned images
+        :return: `FitsArray` object of aligned images.
         :rtype: FitsArray
         """
         logger.info(
@@ -870,18 +798,15 @@ class FitsArray:
 
     def show(self, scale: bool = True, interval: float = 1):
         """
-        fa = FitsArray.from_pattern('pattern')
-        fa.show()
-
-        Animates the Images using matplotlib.
+        Animates the Images using `matplotlib`.
         
-        :param scale: Scales the Image if `True`
+        :param scale: Scales the Image if `True`.
         :type scale: bool (, optional)
         
         :param interval: Interval of the animation. The smaller the value the faster the animation.
         :type interval: float (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
         """
         logger.info(f"animating images. Parameters: {scale=}, {interval=}")
@@ -911,17 +836,12 @@ class FitsArray:
         self, groups: Union[str, List[str]]
     ) -> Dict[Hashable, FitsArray]:
         """
-        fa = FitsArray.from_pattern('pattern')
-        fa.groupby("key")
-        fa.groupby(["key1", "key2", "key3"])
-
-        Groups FitsArray by given key in header.
-        returns a dict with tuple of keys as key and FitsArray as value
+        Groups `FitsArray` by given key in header. Returns a `dict` with tuple of keys as key and FitsArray as value.
         
-        :param groups: Key(s)
+        :param groups: Key(s).
         :type groups: str or List[str]
 
-        :return: a dictionary of grouped images
+        :return: a dictionary of grouped images.
         :rtype: dict
         """
         logger.info(f"groupby started. Parameters: {groups=}")
@@ -945,15 +865,12 @@ class FitsArray:
 
     def save_as(self, output: str) -> FitsArray:
         """
-        fa = FitsArray.from_pattern('pattern')
-        fa.save_as('new_path')
-
-        Saves the FitsArray files as `output`
+        Saves the `FitsArray` files to `output`.
         
-        :param output: new directory to save files
+        :param output: new directory to save files.
         :type output: str
 
-        :return: new FitsArray object of saved fits files
+        :return: new `FitsArray` object of saved fits files.
         :rtype: FitsArray
         """
         logger.info(f"saving as. Parameters: {output=}")

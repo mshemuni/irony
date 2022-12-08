@@ -11,17 +11,14 @@ from .fits import FitsArray
 
 class Calculator:
     """
-    fa = FitsArray.from_pattern('pattern')
-    Calculator(fa)
+    Creates a Calculator Object.
 
-    Creates a Calculator Object
-
-    :param fits_array: A FitsArray
+    :param fits_array: A `FitsArray`.
     :type fits_array: FitsArray
     """
 
     def __init__(self, fits_array: FitsArray) -> None:
-        """Constructor method
+        """Constructor method.
         """
         logger.info(f"Creating an instance from {self.__class__.__name__}")
 
@@ -42,26 +39,21 @@ class Calculator:
             date_format: str = "isot",
             scale: str = "utc") -> None:
         """
-        fa = FitsArray.from_pattern('pattern')
-        ca = Calculator(fa)
-        ca.jd('DATE-OBS', new_key='JD')
+        Inserts a header wth key of `new_key` and value of `JD` which calculated from `key`.
 
-
-        Inserts a header wth key of `new_key` and value of JD which calculated from `key`
-
-        :param key: The key where DATE (UTC) is stored.
+        :param key: The key where DATE (`UTC`) is stored.
         :type key: str
 
-        :param new_key: New key name for JD to be inserted. Default: `JD`
+        :param new_key: New key name for `JD` to be inserted. Default: `JD`.
         :type new_key: str (, optional)
 
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
 
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the `DATE`s. Default: `utc`.
         :type scale: str (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
         """
         logger.info(
@@ -77,25 +69,22 @@ class Calculator:
 
     @classmethod
     def jd_c(cls,
-             dates: Union[str,
-                          List[str]],
+             dates: Union[str, List[str]],
              date_format: str = "isot",
              scale: str = "utc") -> pd.DataFrame:
         """
-        Calculator.jd_c('DATE')
+        Returns `JD` of the given `DATE`s.
 
-        Returns JD of the given DATE(s)
-
-        :param dates: DATE or List of DATEs (utc)
+        :param dates: `DATE` or List of `DATE`s (`utc`).
         :type dates: str or List[str]
 
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
 
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the `DATE`s. Default: `utc`.
         :type scale: str (, optional)
 
-        :return: List of JDs
+        :return: List of `JD`s.
         :rtype: pd.DataFrame
         """
         logger.info(
@@ -111,31 +100,25 @@ class Calculator:
             date_format: str = "isot",
             scale: str = "utc") -> None:
         """
-        fa = FitsArray.from_pattern('pattern')
-        obj = Coordinates.position_from_name('Object Name')
-        ca = Calculator(fa)
-        ca.hjd('DATE-OBS', obj, new_key='JD')
+        Inserts a header wth key of `new_key` and value of `HJD` which calculated from `key`.
 
 
-        Inserts a header wth key of `new_key` and value of HJD which calculated from `key`
-
-
-        :param key: The key where DATE (UTC) is stored.
+        :param key: The key where `DATE` (`UTC`) is stored.
         :type key: str
         
         :param position: SkyCoord object of the Object.
         :type position: SkyCoord
         
-        :param new_key: New key name for JD to be inserted. Default: `HJD`.
+        :param new_key: New key name for `HJD` to be inserted. Default: `HJD`.
         :type new_key: str (, optional)
         
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
 
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the `DATE`s. Default: `utc`.
         :type scale: str (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
         """
         logger.info(
@@ -154,36 +137,31 @@ class Calculator:
 
     @classmethod
     def hjd_c(cls,
-              dates: Union[str,
-                           List[str]],
+              dates: Union[str, List[str]],
               position: SkyCoord,
               new_key: str = "HJD",
               date_format: str = "isot",
               scale: str = "utc") -> pd.DataFrame:
         """
-        obj = Coordinates.position_from_name('Object Name')
-        Calculator.hjd_c('DATE(s)', obj, new_key='JD')
-
-
-        Inserts a header wth key of `new_key` and value of HJD which calculated from `key`
+        Inserts a header wth key of `new_key` and value of `HJD` which calculated from `key`.
         
-        :param dates: DATE or List of DATEs (utc)
+        :param dates: `DATE` or List of `DATE`s (utc).
         :type dates: str or List[str]
         
         :param position: SkyCoord object of the Object.
         :type position: SkyCoord 
         
-        :param new_key: New key name for JD to be inserted. Default: `HJD`.
+        :param new_key: New key name for `HJD` to be inserted. Default: `HJD`.
         :type new_key: str (, optional)
             
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
         
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the `DATE`s. Default: `utc`.
         :type scale: str (, optional)
 
 
-        :return: List of HJDs
+        :return: List of `HJD`s.
         :rtype: pd.DataFrame
         """
         logger.info(
@@ -202,30 +180,24 @@ class Calculator:
             date_format: str = "isot",
             scale: str = "utc") -> None:
         """
-        fa = FitsArray.from_pattern('pattern')
-        obj = Coordinates.position_from_name('Object Name')
-        ca = Calculator(fa)
-        ca.hjd('DATE-OBS', obj, new_key='JD')
-
-
-        Inserts a header wth key of `new_key` and value of BJD which calculated from `key`
+        Inserts a header wth key of `new_key` and value of `BJD` which calculated from `key`.
         
-        :param key: The key where DATE (UTC) is stored.
+        :param key: The key where `DATE` (`utc`) is stored.
         :type key: str
         
         :param position: SkyCoord object of the Object.
         :type position: SkyCoord
         
-        :param new_key: New key name for JD to be inserted. Default: `BJD`.
+        :param new_key: New key name for `HJD` to be inserted. Default: `BJD`.
         :type new_key: str (, optional)
         
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
         
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the DATEs. Default: `utc`.
         :type scale: str (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
         """
         logger.info(
@@ -244,35 +216,30 @@ class Calculator:
 
     @classmethod
     def bjd_c(cls,
-              dates: Union[str,
-                           List[str]],
+              dates: Union[str, List[str]],
               position: SkyCoord,
               new_key: str = "BJD",
               date_format: str = "isot",
               scale: str = "utc") -> pd.DataFrame:
         """
-        obj = Coordinates.position_from_name('Object Name')
-        Calculator.hjd_c('DATE(s)', obj, new_key='JD')
-
-
-        Inserts a header wth key of `new_key` and value of BJD which calculated from `key`
+        Inserts a header wth key of `new_key` and value of BJD which calculated from `key`.
         
-        :param dates: DATE or List of DATEs (utc)
+        :param dates: `DATE` or List of `DATE`s (`utc`).
         :type dates: str or List[str]
         
         :param position: SkyCoord object of the Object.
         :type position: SkyCoord
         
-        :param new_key: New key name for JD to be inserted. Default: `BJD`.
+        :param new_key: New key name for `BJD` to be inserted. Default: `BJD`.
         :type new_key: str (, optional)
         
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
         
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the `DATE`s. Default: `utc`.
         :type scale: str (, optional)
 
-        :return: List of BJDs
+        :return: List of `BJDs`.
         :rtype: pd.DataFrame
         """
         logger.info(
@@ -283,24 +250,20 @@ class Calculator:
         times_heliocentre = times.utc + ltt_helio
         return pd.DataFrame({"hjd": times_heliocentre})
 
-    def astropy_time(self, key: str, date_format="isot", scale="utc") -> ATime:
+    def astropy_time(self, key: str, date_format: str = "isot", scale: str = "utc") -> ATime:
         """
-        fa = FitsArray.from_pattern('pattern')
-        ca = Calculator(fa)
-        ca.astropy_time('DATE-OBS')
-
-        Returns a list of astropy.time.Time from given `key` in header
+        Returns a list of `astropy.time.Time` from given `key` in header.
         
-        :param key: The key where DATE (UTC) is stored.
+        :param key: The key where `DATE` (`utc`) is stored.
         :type key: str
         
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
         
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the `DATE`s. Default: `utc`.
         :type scale: str (, optional)
 
-        :return: Time object
+        :return: Time object.
         :rtype: astropy.time.Time
         """
         logger.info(
@@ -317,25 +280,22 @@ class Calculator:
 
     @classmethod
     def astropy_time_c(cls,
-                       dates: Union[str,
-                                    List[str]],
+                       dates: Union[str, List[str]],
                        date_format: str = "isot",
                        scale: str = "utc") -> ATime:
         """
-        Calculator.astropy_time_c('DATE(s)')
-
-        Returns a list of astropy.time.Time from given `DATEs` in header
+        Returns a list of `astropy.time.Time` from given `DATE`s in header.
         
-        :param dates: The key where DATE (UTC) is stored.
+        :param dates: The key where `DATE` (`utc`) is stored.
         :type dates: str or List[str]
         
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
         
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the `DATE`s. Default: `utc`.
         :type scale: str (, optional)
 
-        :return: Time object
+        :return: Time object.
         :rtype: astropy.time.Time
         """
         logger.info(
@@ -356,16 +316,9 @@ class Calculator:
         scale: str = "utc",
     ) -> None:
         """
-        fa = FitsArray.from_pattern('pattern')
-        site = Coordinates.location_from_name('Location Name')
-        obj = Coordinates.position_from_name('Object Name')
-        ca = Calculator(fa)
-        ca.sec_z('DATE-OBS', site, obj, new_key='ARIMASS')
-
-
-        Inserts a header wth key of `new_key` and value of secz which calculated from `key`
+        Inserts a header wth key of `new_key` and value of `secz` which calculated from `key`.
         
-        :param key: The key where DATE (UTC) is stored.
+        :param key: The key where `DATE` (`utc`) is stored.
         :type key: str
         
         :param location: EarthLocation of the Observation site.
@@ -374,16 +327,16 @@ class Calculator:
         :param position: SkyCoord object of the Object.
         :type position: SkyCoord
         
-        :param new_key: New key name for JD to be inserted. Default: `ARIMASS`.
+        :param new_key: New key name for `SECZ` to be inserted. Default: `ARIMASS`.
         :type new_key: str (, optional)
         
-        :param date_format: Time format of the DATE. Default: isot
+        :param date_format: Time format of the `DATE`. Default: `isot`.
         :type date_format: str (, optional)
         
-        :param scale: Scale of the DATEs. Default: `utc`
+        :param scale: Scale of the `DATE`s. Default: `utc`.
         :type scale: str (, optional)
 
-        :return: none
+        :return: None.
         :rtype: None
 
         """
@@ -404,14 +357,9 @@ class Calculator:
         cls, times: ATime, location: EarthLocation, position: SkyCoord
     ) -> pd.DataFrame:
         """
-        site = Coordinates.location_from_name('Location Name')
-        obj = Coordinates.position_from_name('Object Name')
-        Calculator.sec_z_c('DATE(s)', site, obj, new_key='ARIMASS')
-
-
-        Returns secz which calculated from `DATE(s)` and given location and position
+        Returns `secz` which calculated from `DATE`s and given location and position.
         
-        :param times: List of dates
+        :param times: List of dates.
         :type times: astropy.time.Time
         
         :param location: EarthLocation of the Observation site.
@@ -420,7 +368,7 @@ class Calculator:
         :param position: SkyCoord object of the Object.
         :type position: SkyCoord
 
-        :return: List of Airmass
+        :return: List of `secz`.
         :rtype: pd.DataFrame
         """
         logger.info(
@@ -435,14 +383,12 @@ class Coordinates:
     @classmethod
     def location_from_name(cls, name: str) -> EarthLocation:
         """
-        site = Coordinates.location_from_name('Location Name')
+        Returns an EarthLocation from a given name.
 
-        Returns an EarthLocation from a given name
-
-        :param name: Name of the site
+        :param name: Name of the site.
         :type name: str
 
-        :return: Location
+        :return: Location.
         :rtype: EarthLocation
         """
         logger.info(f"Creating EarthLocation. Parameters: {name=}")
@@ -453,20 +399,18 @@ class Coordinates:
         cls, longitude: float, latitude: float, altitude: float = 0
     ) -> EarthLocation:
         """
-        site = Coordinates.location(LONGITUDE, LATITUDE, ALTITUDE)
-
-        Returns an EarthLocation from given longitude, latitude and altitude
+        Returns an EarthLocation from given `longitude`, `latitude` and `altitude`.
         
-        :param longitude: longitude of the location
+        :param longitude: `longitude` of the location.
         :type longitude: float
         
-        :param latitude: latitude of the location
+        :param latitude: `latitude` of the location.
         :type latitude: float
         
-        :param altitude: altitude of the location
+        :param altitude: `altitude` of the location.
         :type altitude: float
 
-        :return: Location
+        :return: Location.
         :rtype: EarthLocation
         """
         logger.info(
@@ -479,14 +423,12 @@ class Coordinates:
     @classmethod
     def position_from_name(cls, name: str) -> SkyCoord:
         """
-        site = Coordinates.location_from_name('Location Name')
-
-        Returns a SkyCoord from the given ra and dec
+        Returns a SkyCoord from the given name.
         
-        :param name: Name of the celestial object
+        :param name: Name of the celestial object.
         :type name: str
 
-        :return: Position
+        :return: Position.
         :rtype: SkyCoord
         """
         logger.info(f"Creating SkyCoord. Parameters: {name=}")
@@ -495,17 +437,15 @@ class Coordinates:
     @classmethod
     def position(cls, ra: float, dec: float) -> SkyCoord:
         """
-        site = Coordinates.location(RA, DEC)
-
-        Returns a SkyCoord from given ra and dec
+        Returns a SkyCoord from given `ra` and `dec`.
         
-        :param ra: right ascension
+        :param ra: right ascension.
         :type ra: float
         
-        :param dec: Declination
+        :param dec: Declination.
         :type dec: float
 
-        :return: Position
+        :return: Position.
         :rtype: SkyCoord
         """
         logger.info(f"Creating SkyCoord. Parameters: {ra=}, {dec=}")
