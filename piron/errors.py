@@ -1,13 +1,13 @@
 class EmissionValueError(Exception):
     """
-    Raised on `Emission` error
+    Raised on Emission error
     """
     pass
 
 
 class NoiseValueError(Exception):
     """
-    Raised on `Noise` error
+    Raised on Noise error
     """
     pass
 
@@ -21,28 +21,28 @@ class ImageCountError(Exception):
 
 class OperationValueError(Exception):
     """
-    Raised on `Operation` error
+    Raised on Operation error
     """
     pass
 
 
 class RejectionValueError(Exception):
     """
-    Raised on `Rejection` error
+    Raised on Rejection error
     """
     pass
 
 
 class OperandValueError(Exception):
     """
-    Raised on `Operand` error
+    Raised on Operand error
     """
     pass
 
 
 class ScaleValueError(Exception):
     """
-    Raised on `Scale` error
+    Raised on Scale error
     """
     pass
 

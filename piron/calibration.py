@@ -1,8 +1,8 @@
 from subprocess import PIPE
-
+from logging import Logger, getLogger
 from pyraf import iraf
 
-from .base_logger import logger
+# from .base_logger import logger
 from .errors import ImageCountError, NothingToDoError
 from .fits import Fits, FitsArray
 from .utils import Fixer
@@ -12,14 +12,17 @@ class Calibration:
     """
     Creates a Calibration Object.
     
-    :param fits_array: A `FitsArray`.
+    :param fits_array: A FitsArray.
     :type fits_array: FitsArray
     """
     
-    def __init__(self, fits_array: FitsArray) -> None:
+    def __init__(self, fits_array: FitsArray, logger: Logger) -> None:
         """Constructor method.
         """
-        logger.info(f"Creating an instance from {self.__class__.__name__}")
+        self.logger = logger or getLogger("dummy")
+
+        self.logger.info(f"Creating an instance from {self.__class__.__name__}")
+
         if len(fits_array) < 1:
             logger.error("There is no image to process")
             raise ImageCountError("There is no image to process")
@@ -30,7 +33,7 @@ class Calibration:
         iraf.ccdred(Stdout=PIPE)
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}(id: {id(self)}, data: {self.fits_array})"
+        return f"{self.__class__.__name__}(@: {id(self)}, data: {self.fits_array})"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -43,21 +46,21 @@ class Calibration:
         output: str = None,
     ) -> FitsArray:
         """
-        Returns the calibrated `FitsArray`.
+        Returns the calibrated FitsArray.
         
-        :param zero: `Fits` object of master zero. If `None`, zero correction will be skipped.
+        :param zero: Fits object of master zero. If None, zero correction will be skipped.
         :type zero: Fits
         
-        :param dark: `Fits` object of master dark. If `None`, dark correction will be skipped.
+        :param dark: Fits object of master dark. If None, dark correction will be skipped.
         :type dark: Fits
         
-        :param flat: `Fits` object of master flat. If `None`, flat correction will be skipped.
+        :param flat: Fits object of master flat. If None, flat correction will be skipped.
         :type flat: Fits
         
         :param output: Path of the new fits file.
         :type output: str (, optional)
 
-        :return: Calibrated `FitsArray`.
+        :return: Calibrated FitsArray.
         :rtype: FitsArray
         """
         logger.info(

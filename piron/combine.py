@@ -1,8 +1,8 @@
 from subprocess import PIPE
-
+from logging import Logger, getLogger
 from pyraf import iraf
 
-from .base_logger import logger
+# from .base_logger import logger
 from .errors import ImageCountError
 from .fits import Fits, FitsArray
 from .utils import Check, Fixer
@@ -12,14 +12,16 @@ class Combine:
     """
     Creates a Combine Object.
     
-    :param fits_array: A `FitsArray`.
+    :param fits_array: A FitsArray.
     :type fits_array: FitsArray
     """
     
-    def __init__(self, fits_array: FitsArray) -> None:
+    def __init__(self, fits_array: FitsArray, logger: Logger) -> None:
         """Constructor method.
         """
-        logger.info(f"Creating an instance from {self.__class__.__name__}")
+        self.logger = logger or getLogger("dummy")
+
+        self.logger.info(f"Creating an instance from {self.__class__.__name__}")
         if len(fits_array) < 1:
             raise ImageCountError("There is no image to process")
 
@@ -45,7 +47,7 @@ class Combine:
         reject: str = None,
     ) -> Fits:
         """
-        Returns the combined `Fits` of `FitsArray`.
+        Returns the combined Fits of FitsArray.
         
         :param operation: Type of operation. 
         :type operation: str
@@ -59,7 +61,7 @@ class Combine:
         :param reject: Rejection method.
         :type reject: str (, optional)
 
-        :return: Combined `Fits` of `FitsArray`.
+        :return: Combined Fits of FitsArray.
         :rtype: Fits
         """
         logger.info(
@@ -101,7 +103,7 @@ class Combine:
         reject: str = None,
     ) -> Fits:
         """
-        Returns the zerocombine `Fits` of `FitsArray`.
+        Returns the zerocombine Fits of FitsArray.
         
         :param operation: Type of operation. 
         :type operation: str
@@ -115,7 +117,7 @@ class Combine:
         :param reject: Rejection method.
         :type reject: str (, optional)
 
-        :return: Combined `Fits` of `FitsArray`.
+        :return: Combined Fits of FitsArray.
         :rtype: Fits
         """
         logger.info(
@@ -158,7 +160,7 @@ class Combine:
         scale: str = None,
     ) -> Fits:
         """
-        Returns the darkcombine `Fits` of `FitsArray`.
+        Returns the darkcombine Fits of FitsArray.
         
         :param operation: Type of operation. 
         :type operation: str
@@ -175,7 +177,7 @@ class Combine:
         :param scale: Scaling method.
         :type scale: str (, optional)
 
-        :return: Combined `Fits` of `FitsArray`.
+        :return: Combined Fits of FitsArray.
         :rtype: Fits
         """
         logger.info(
@@ -222,7 +224,7 @@ class Combine:
         scale: str = None,
     ) -> Fits:
         """
-        Returns the flatcombine `Fits` of `FitsArray`.
+        Returns the flatcombine Fits of FitsArray.
         
         :param operation: Type of operation. 
         :type operation: str
@@ -239,7 +241,7 @@ class Combine:
         :param scale: Scaling method.
         :type scale: str (, optional)
 
-        :return: Combined `Fits` of `FitsArray`.
+        :return: Combined Fits of FitsArray.
         :rtype: Fits
         """
         logger.info(
@@ -279,7 +281,7 @@ class Combine:
 
     def imsum(self, output: str = None, override: bool = False) -> Fits:
         """
-        Returns the imsum `Fits` of `FitsArray`.
+        Returns the imsum Fits of FitsArray.
         
         
         :param output: Path of the new fits file.
@@ -288,7 +290,7 @@ class Combine:
         :param override: Force (overwrite) the output if a file with the same name already exist.
         :type override: bool (, optional)
 
-        :return: sum of `FitsArray`.
+        :return: sum of FitsArray.
         :rtype: Fits
         """
         logger.info(f"imsum started. Parameters:{output=}, {override=}")

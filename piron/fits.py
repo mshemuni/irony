@@ -6,7 +6,7 @@ from glob import glob
 from pathlib import Path
 from subprocess import PIPE
 from typing import Dict, List, Union, Iterator, Hashable
-
+from logging import Logger, getLogger
 import astroalign
 import matplotlib.animation as animation
 import numpy as np
@@ -19,25 +19,29 @@ from mpl_point_clicker import clicker
 from photutils.detection import DAOStarFinder
 from pyraf import iraf
 from sep import Background
+from ccdproc import cosmicray_lacosmic
 
-from .base_logger import logger
+# from .base_logger import logger
 from .errors import AlignError, ImageCountError
 from .utils import Check, Fixer
 
 
 class Fits:
     """
-    Creates a `Fits` Object. The `file_path` must exist.
+    Creates a Fits Object. The file_path must exist.
     
-    :param path: `pathlib.Path` object of the fits file.
+    :param path: pathlib.Path object of the fits file.
     :type path: Path
 
     """
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, logger: Logger):
         """Constructor method.
         """
-        logger.info(f"Creating an instance from {self.__class__.__name__}")
+        self.logger = logger or getLogger("dummy")
+
+        self.logger.info(f"Creating an instance from {self.__class__.__name__}")
+
         if not path.exists():
             raise FileNotFoundError("File does not exist")
 
@@ -54,10 +58,28 @@ class Fits:
     def __abs__(self) -> str:
         return str(self.path.absolute())
 
+    def __sub__(self, other: Union[Fits, float, int]) -> Fits:
+        return self.imarith(other, "-")
+
+    def __add__(self, other: Union[Fits, float, int]) -> Fits:
+        return self.imarith(other, "+")
+
+    def __radd__(self, other: Union[Fits, float, int]) -> Fits:
+        return self.imarith(other, "+")
+
+    def __mul__(self, other: Union[Fits, float, int]) -> Fits:
+        return self.imarith(other, "*")
+
+    def __rmul__(self, other: Union[Fits, float, int]) -> Fits:
+        return self.imarith(other, "*")
+
+    def __truediv__(self, other: Union[Fits, float, int]) -> Fits:
+        return self.imarith(other, "/")
+
     @classmethod
     def from_path(cls, path: str) -> Fits:
         """
-        Creates a `Fits` Object. The `file_path` must exist.
+        Creates a Fits Object. The file_path must exist.
         
         :param path: Path of the fits file.
         :type path: str
@@ -71,8 +93,8 @@ class Fits:
     @property
     def imstat(self) -> dict:
         """
-        Returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a `dict`. The default return of `IRAF`'s
-        `imstatistics` task.
+        Returns the npix, mean, stddev, min, max of the array as a dict. The default return of IRAF's
+        imstatistics task.
 
         :return: dictionary of statistics.
         :rtype: dict
@@ -93,7 +115,7 @@ class Fits:
     @property
     def header(self) -> dict:
         """
-        Returns the header of the fits file as a `dict`. The return of `IRAF`'s `imheader` task with `l+`.
+        Returns the header of the fits file as a dict. The return of IRAF's imheader task with l+.
 
         :return: dictionary of headers.
         :rtype: dict
@@ -106,7 +128,7 @@ class Fits:
     @property
     def data(self) -> np.ndarray:
         """
-        Returns the header of the fits file as a `np.array`.
+        Returns the header of the fits file as a np.array.
 
         :return: array of data.
         :rtype: np.ndarray
@@ -120,10 +142,10 @@ class Fits:
         """
         Returns the background object of the fits file.
         
-        :param as_array: If `True` returns a `np.array` of background. Otherwise, returns the object itself.
+        :param as_array: If True returns a np.array of background. Otherwise, returns the object itself.
         :type as_array: bool
 
-        :return: Either a background object or a `np.array`.
+        :return: Either a background object or a np.array.
         :rtype: Union[Background, np.ndarray]
         """
         logger.info(f"Getting background. Parameters: {as_array=}")
@@ -132,12 +154,98 @@ class Fits:
             return Background(self.data).back()
         return Background(self.data)
 
+    def cosmic_cleaner(self, output: str = None, override: bool = False, sigclip: float = 4.5, sigfrac: float = 0.3,
+                       objlim: float = 5.0, gain: float = 1.0, readnoise: float = 6.5, satlevel: float = 65535.0,
+                       pssl: float = 0.0, niter: int = 4, sepmed: bool = True, cleantype: str = 'meanmask',
+                       fsmode: str = 'median', psfmodel: str = 'gauss', psffwhm: float = 2.5, psfsize: int = 7,
+                       psfk: np.ndarray = None, psfbeta: float = 4.765, gain_apply: bool = True):
+        """
+
+        :param output: path of the new fits file.
+        :type output: str (, optional)
+
+        :param override: If True will overwrite the new_path if a file is already exists.
+        :type override: bool (, optional)
+
+        :param sigclip: Laplacian-to-noise limit for cosmic ray detection. Lower values will flag more pixels as cosmic rays. Default: 4.5. see [1]
+        :type sigclip: float (, optional)
+
+        :param sigfrac: Fractional detection limit for neighboring pixels. For cosmic ray neighbor pixels, a Laplacian-to-noise detection limit of sigfrac * sigclip will be used. Default: 0.3. see [1]
+        :type sigfrac: float (, optional)
+
+        :param objlim: Minimum contrast between Laplacian image and the fine structure image. Increase this value if cores of bright stars are flagged as cosmic rays. Default: 5.0. see [1]
+        :type objlim: float (, optional)
+
+        :param gain: Gain of the image (electrons / ADU). We always need to work in electrons for cosmic ray detection. Default: 1.0 see [1]
+        :type gain: float (, optional)
+
+        :param readnoise: Read noise of the image (electrons). Used to generate the noise model of the image. Default: 6.5. see [1]
+        :type readnoise: float (, optional)
+
+        :param satlevel: Saturation level of the image (electrons). This value is used to detect saturated stars and pixels at or above this level are added to the mask. Default: 65535.0. see [1]
+        :type satlevel: float (, optional)
+
+        :param pssl: Previously subtracted sky level in ADU. We always need to work in electrons for cosmic ray detection, so we need to know the sky level that has been subtracted so we can add it back in. Default: 0.0. see [1]
+        :type pssl: float (, optional)
+
+        :param niter: Number of iterations of the LA Cosmic algorithm to perform. Default: 4. see [1]
+        :type niter: int (, optional)
+
+        :param sepmed: Use the separable median filter instead of the full median filter. The separable median is not identical to the full median filter, but they are approximately the same, the separable median filter is significantly faster, and still detects cosmic rays well. Note, this is a performance feature, and not part of the original L.A. Cosmic. Default: True. see [1]
+        :type sepmed: float (, optional)
+
+        :param cleantype: Set which clean algorithm is used: 1) "median": An unmasked 5x5 median filter. 2) "medmask": A masked 5x5 median filter. 3) "meanmask": A masked 5x5 mean filter. 4) "idw": A masked 5x5 inverse distance weighted interpolation. Default: "meanmask". see [1]
+        :type cleantype: str (, optional)
+
+        :param fsmode: Method to build the fine structure image: 1) "median": Use the median filter in the standard LA Cosmic algorithm. 2) "convolve": Convolve the image with the psf kernel to calculate the fine structure image. Default: "median". see [1]
+        :type fsmode: float (, optional)
+
+        :param psfmodel: Model to use to generate the psf kernel if fsmode == ‘convolve’ and psfk is None. The current choices are Gaussian and Moffat profiles: - "gauss" and "moffat" produce circular PSF kernels. - The "gaussx" and "gaussy" produce Gaussian kernels in the x and y directions respectively. Default: "gauss". see [1]
+        :type psfmodel: str (, optional)
+
+        :param psffwhm: Full Width Half Maximum of the PSF to use to generate the kernel. Default: 2.5. see [1]
+        :type psffwhm: float (, optional)
+
+        :param psfsize: Size of the kernel to calculate. Returned kernel will have size psfsize x psfsize. psfsize should be odd. Default: 7. see [1]
+        :type psfsize: int (, optional)
+
+        :param psfk: PSF kernel array to use for the fine structure image if fsmode == 'convolve'. If None and fsmode == 'convolve', we calculate the psf kernel using psfmodel. Default: None. see [1]
+        :type psfk: np.ndarray (with float dtype)  (, optional)
+
+        :param psfbeta:
+        :type psfbeta: float (, optional)
+
+        :param gain_apply: If True, return gain-corrected data, with correct units, otherwise do not gain-correct the data. Default is True to preserve backwards compatibility. see [1]
+        :type gain_apply: float (, optional)
+
+        [1]: https://ccdproc.readthedocs.io/en/latest/api/ccdproc.cosmicray_lacosmic.html
+
+        :return: cleaned fits
+        :rtype: Fits
+        """
+        logger.info(f"Starting Cosmic clean. Parameters: alot...")
+
+        output = Fixer.output(output, override=override)
+
+        newdata, _ = cosmicray_lacosmic(self.data, sigclip=sigclip, sigfrac=sigfrac, objlim=objlim, gain=gain,
+                                        readnoise=readnoise, satlevel=satlevel, pssl=pssl, niter=niter, sepmed=sepmed,
+                                        cleantype=cleantype, fsmode=fsmode, psfmodel=psfmodel, psffwhm=psffwhm,
+                                        psfsize=psfsize, psfk=psfk, psfbeta=psfbeta, gain_apply=gain_apply)
+
+        fts.writeto(
+            output,
+            newdata.value,
+            header=fts.getheader(abs(self))
+        )
+
+        return Fits.from_path(output)
+
     def hedit(
-        self,
-        keys: Union[str, List[str]],
-        values: Union[str, List[str]] = None,
-        delete: bool = False,
-        value_is_key: bool = False,
+            self,
+            keys: Union[str, List[str]],
+            values: Union[str, List[str]] = None,
+            delete: bool = False,
+            value_is_key: bool = False,
     ) -> None:
         """
         Edits header of the given file.
@@ -145,13 +253,13 @@ class Fits:
         :param keys: Keys to be altered.
         :type keys: str or List[str]
         
-        :param values: values to be added to set be set. Would be ignored if `delete` is `True`.
+        :param values: values to be added to set be set. Would be ignored if delete is True.
         :type values: str or List[str] (, optional)
         
-        :param delete: deletes the key from header if `True`.
+        :param delete: deletes the key from header if True.
         :type delete: bool (, optional)
 
-        :param value_is_key: adds value of the key given in `values` if `True`. Would be ignored if `delete` is `True`.
+        :param value_is_key: adds value of the key given in values if True. Would be ignored if delete is True.
         :type value_is_key: bool (, optional)
 
         :return: None.
@@ -199,12 +307,12 @@ class Fits:
 
     def save_as(self, path: str, override: bool = False) -> Fits:
         """
-        Saves the Fits file as `new_path`.
+        Saves the Fits file as new_path.
         
         :param path: new path to save the file.
         :type path: str
         
-        :param override: If `True` will overwrite the `new_path` if a file is already exists.
+        :param override: If True will overwrite the new_path if a file is already exists.
         :type override: bool (, optional)
 
         :return: new Fits object of saved fits file.
@@ -220,25 +328,25 @@ class Fits:
         return Fits.from_path(path)
 
     def imarith(
-        self,
-        other: Union[Fits, float, int],
-        operand: str,
-        output: str = None,
-        override: bool = False,
+            self,
+            other: Union[Fits, float, int],
+            operand: str,
+            output: str = None,
+            override: bool = False,
     ) -> Fits:
         """
-        Makes an arithmeic calculation on the file. The default behaviour of `IRAF`'s `imarith` task.
+        Makes an arithmeic calculation on the file. The default behaviour of IRAF's imarith task.
 
         :param other: the value to be added to image array.
         :type other: Fits or float or int
         
-        :param operand: An arithmetic operator. Either `+`, `-`, `*` or `/`.
+        :param operand: An arithmetic operator. Either +, -, * or /.
         :type operand: str
         
         :param output: Path of the new fits file.
         :type output: str (, optional)
         
-        :param override: If `True` will overwrite the `new_path` if a file is already exists.
+        :param override: If True will overwrite the new_path if a file is already exists.
         :type override: bool (, optional)
 
         :return: Fits object of resulting fits of the operation.
@@ -274,17 +382,15 @@ class Fits:
         return Fits.from_path(output)
 
     def daofind(
-        self, sigma: float = 3, fwhm: float = 3, threshold: float = 5
+            self, sigma: float = 3, fwhm: float = 3, threshold: float = 5
     ) -> pd.DataFrame:
         """
-        Runs `daofind` to detect sources on the image.
+        Runs daofind to detect sources on the image.
         
-        :param sigma: The number of standard deviations to use for both the lower and upper clipping limit.
-        These limits are overridden by sigma_lower and sigma_upper, if input. The default is 3. [1]
+        :param sigma: The number of standard deviations to use for both the lower and upper clipping limit. These limits are overridden by sigma_lower and sigma_upper, if input. The default is 3. [1]
         :type sigma: float (, optional).
         
-        :param fwhm: The full-width half-maximum (`FWHM`) of the major axis of the
-        Gaussian kernel in units of pixels. [2]
+        :param fwhm: The full-width half-maximum (FWHM) of the major axis of the Gaussian kernel in units of pixels. [2]
         :type fwhm: float (, optional)
         
         :param threshold: The absolute image value above which to select sources. [2]
@@ -322,18 +428,18 @@ class Fits:
         )
 
     def align(
-        self,
-        other: Fits,
-        output: str = None,
-        max_control_points: int = 50,
-        detection_sigma: float = 5,
-        min_area: int = 5,
-        override: bool = False,
+            self,
+            other: Fits,
+            output: str = None,
+            max_control_points: int = 50,
+            detection_sigma: float = 5,
+            min_area: int = 5,
+            override: bool = False,
     ) -> Fits:
         """
-        Runs a `Fits` object of aligned Image.
+        Runs a Fits object of aligned Image.
         
-        :param other: The reference Image to be aligned as a `Fits` object.
+        :param other: The reference Image to be aligned as a Fits object.
         :type other: Fits
         
         :param output: path of the new fits file.
@@ -348,7 +454,7 @@ class Fits:
         :param min_area: Minimum number of connected pixels to be considered a source. [1]
         :type min_area: int (, optional)
         
-        :param override: If `True` will overwrite the `new_path` if a file is already exists.
+        :param override: If True will overwrite the new_path if a file is already exists.
         :type override: bool (, optional)
 
         [1]: https://astroalign.quatrope.org/en/latest/api.html#astroalign.register
@@ -382,12 +488,12 @@ class Fits:
 
     def show(self, points: pd.DataFrame = None, scale: bool = True) -> None:
         """
-        Shows the Image using `matplotlib`.
+        Shows the Image using matplotlib.
         
         :param points: Draws points on image if a list is given.
         :type points: pd.DataFrame (, optional)
         
-        :param scale: Scales the Image if `True`.
+        :param scale: Scales the Image if True.
         :type scale: bool (, optional)
 
         :return: None.
@@ -413,7 +519,7 @@ class Fits:
         """
         Shows the Image using matplotlib and returns a list of coordinates picked by user.
         
-        :param scale: Scales the Image if `True`.
+        :param scale: Scales the Image if True.
         :type scale: bool (, optional)
 
         :return: None.
@@ -440,16 +546,18 @@ class Fits:
 
 class FitsArray:
     """
-    Creates a `FitsArray` Object. The length of  `fits_list`s must larger the 0.
-    
-    :param fits_list: A list of `Fits`.
+    Creates a FitsArray Object. The length of  fits_lists must larger the 0.
+
+    :param fits_list: A list of Fits.
     :type fits_list: List[Fits]
     """
 
-    def __init__(self, fits_list: List[Fits]) -> None:
+    def __init__(self, fits_list: List[Fits], logger: Logger) -> None:
         """Constructor method
         """
-        logger.info(f"Creating an instance from {self.__class__.__name__}")
+        self.logger = logger or getLogger("dummy")
+
+        self.logger.info(f"Creating an instance from {self.__class__.__name__}")
 
         if len(fits_list) < 1:
             raise ImageCountError("No image was provided")
@@ -462,8 +570,14 @@ class FitsArray:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __getitem__(self, key: int) -> Fits:
-        return self.fits_list[key]
+    def __getitem__(self, key: int) -> Union[Fits, FitsArray]:
+        element = self.fits_list[key]
+        if isinstance(element, Fits):
+            return element
+        elif isinstance(element, List):
+            return FitsArray(element)
+
+        raise ValueError("Wrong slice")
 
     def __len__(self) -> int:
         return len(self.fits_list)
@@ -474,12 +588,12 @@ class FitsArray:
     @classmethod
     def from_paths(cls, paths: List[str]) -> FitsArray:
         """
-        Creates a `FitsArray` Object. The length of `glob('file_path*.fit*')` must be larger then 0.
-        
+        Creates a FitsArray Object. The length of glob('file_path*.fit*') must be larger then 0.
+
         :param paths: A list of strings of paths.
         :type paths: List[str]
 
-        :return: `FitsArray` generated from list of paths as str.
+        :return: FitsArray generated from list of paths as str.
         :rtype: FitsArray
         """
         logger.info(f"Creating FitsArray from from_paths. Parameters: {paths}")
@@ -490,28 +604,28 @@ class FitsArray:
             except FileNotFoundError:
                 pass
 
-        return FitsArray(list(files))
+        return FitsArray(files)
 
     @classmethod
     def from_pattern(cls, pattern: str) -> FitsArray:
         """
-        Creates a `FitsArray` Object. The length of `glob('file_path*.fit*')` must be larger then 0.
-        
+        Creates a FitsArray Object. The length of glob('file_path*.fit*') must be larger then 0.
+
         :param pattern: a pattern of a list of files.
         :type pattern: str
 
-        :return: `FitsArray` generated from pattern of files.
+        :return: FitsArray generated from pattern of files.
         :rtype: FitsArray
         """
         logger.info(
             f"Creating FitsArray from from_paths. Parameters: {pattern}")
 
-        return FitsArray(list(map(Fits, map(Path, glob(pattern)))))
+        return FitsArray.from_paths(glob(pattern))
 
     @contextlib.contextmanager
     def at_file(self) -> Iterator[str]:
         """
-        Creates a text file with all fits file paths at each line. Useful for `IRAF`'s `@file`s.
+        Creates a text file with all fits file paths at each line. Useful for IRAF's @files.
 
         :return: a context manager of a file containing file path of each file.
         :rtype: Generator[str]
@@ -519,7 +633,7 @@ class FitsArray:
         logger.info(f"Creating at_file. Parameters: None")
 
         with tempfile.NamedTemporaryFile(
-            mode="w", delete=True, suffix=".fls", prefix="piron_"
+                mode="w", delete=True, suffix=".fls", prefix="piron_"
         ) as tmp:
             to_write = []
             for each in self.fits_list:
@@ -531,8 +645,8 @@ class FitsArray:
     @property
     def imstat(self) -> pd.DataFrame:
         """
-        Returns the `npix`, `mean`, `stddev`, `min`, `max` of the array as a `pd.DataFrame`. The default return of
-        `IRAF`'s `imstatistics` task.
+        Returns the npix, mean, stddev, min, max of the array as a pd.DataFrame. The default return of
+        IRAF's imstatistics task.
 
         :return: List of statistics of all files.
         :rtype: pd.DataFrame
@@ -545,10 +659,10 @@ class FitsArray:
                 pd.DataFrame(
                     [
                         each.split() for each in iraf.imutil.imstatistics(
-                            f"@{at_file}",
-                            fields="image,npix,mean,stddev,min,max",
-                            Stdout=PIPE,
-                        ) if not each.startswith("#") and not each.startswith("Error")],
+                        f"@{at_file}",
+                        fields="image,npix,mean,stddev,min,max",
+                        Stdout=PIPE,
+                    ) if not each.startswith("#") and not each.startswith("Error")],
                     columns=(
                         "image",
                         "npix",
@@ -556,14 +670,14 @@ class FitsArray:
                         "stddev",
                         "min",
                         "max"),
-                ) .set_index("image") .replace(
+                ).set_index("image").replace(
                     {
-                        np.nan: None}) .astype(float))
+                        np.nan: None}).astype(float))
 
     @property
     def header(self) -> pd.DataFrame:
         """
-        Returns the header of the fits file(s) as a pd.DataFrame. The return of `IRAF`'s `imheader` task with `l+`.
+        Returns the header of the fits file(s) as a pd.DataFrame. The return of IRAF's imheader task with l+.
 
         :return: List of headers of all files.
         :rtype: pd.DataFrame
@@ -579,25 +693,25 @@ class FitsArray:
         return pd.DataFrame(headers).set_index("image").replace({np.nan: None})
 
     def hedit(
-        self,
-        keys: Union[str, List[str]],
-        values: Union[str, List[str]] = None,
-        delete: bool = False,
-        value_is_key: bool = False,
+            self,
+            keys: Union[str, List[str]],
+            values: Union[str, List[str]] = None,
+            delete: bool = False,
+            value_is_key: bool = False,
     ) -> None:
         """
         Edits header of the given file.
-        
+
         :param keys: Keys to be altered.
         :type keys: str or List[str]
-        
-        :param values: values to be added to set be set. Would be ignored if `delete` is `True`.
+
+        :param values: values to be added to set be set. Would be ignored if delete is True.
         :type values: str or List[str] (, optional)
-        
-        :param delete: deletes the key from header if `True`.
+
+        :param delete: deletes the key from header if True.
         :type delete: bool (, optional)
-        
-        :param value_is_key: adds value of the key given in `values` if `True`. Would be ignored if `delete` is `True`.
+
+        :param value_is_key: adds value of the key given in values if True. Would be ignored if delete is True.
         :type value_is_key: bool (, optional)
 
         :return: None.
@@ -643,8 +757,8 @@ class FitsArray:
 
     def hselect(self, fields: Union[str, List[str]]) -> pd.DataFrame:
         """
-        Returns the header of the fits file(s) as a `pd.DataFrame`. The return of `IRAF`'s `imheader` task with `l+`.
-        
+        Returns the header of the fits file(s) as a pd.DataFrame. The return of IRAF's imheader task with l+.
+
         :param fields: Keys to be returned.
         :type fields: str or List[str]
 
@@ -668,24 +782,24 @@ class FitsArray:
         return self.header[fields_to_use]
 
     def imarith(
-        self,
-        other: Union[FitsArray, Fits, float, int, List[float], List[int]],
-        operand: str,
-        output: str = None,
+            self,
+            other: Union[FitsArray, Fits, float, int, List[float], List[int]],
+            operand: str,
+            output: str = None,
     ) -> FitsArray:
         """
-        Makes an arithmeic calculation on the file(s). The default behaviour of `IRAF`'s `imarith` task.
-        
+        Makes an arithmeic calculation on the file(s). The default behaviour of IRAF's imarith task.
+
         :param other: the value to be added to image array.
         :type other: FitsArray, List[float], List[int], Fits, float or int
 
-        :param operand: An arithmetic operator. Either `+`, `-`, `*` or `/`.
+        :param operand: An arithmetic operator. Either +, -, * or /.
         :type operand: str
 
         :param output: path of the new fits files.
         :type output: str (, optional)
 
-        :return: `FitsArray` object of resulting fits of the operation.
+        :return: FitsArray object of resulting fits of the operation.
         :rtype: FitsArray
         """
         logger.info(
@@ -738,34 +852,34 @@ class FitsArray:
                     return FitsArray.from_paths(new_files.read().split())
 
     def align(
-        self,
-        other: Fits,
-        output: str = None,
-        max_control_points: int = 50,
-        detection_sigma: float = 5,
-        min_area: int = 5,
+            self,
+            other: Fits,
+            output: str = None,
+            max_control_points: int = 50,
+            detection_sigma: float = 5,
+            min_area: int = 5,
     ) -> FitsArray:
         """
-        Runs a `FitsArray` object of aligned Image.
+        Runs a FitsArray object of aligned Image.
 
-        :param other: The reference Image to be aligned as a `Fits`.
+        :param other: The reference Image to be aligned as a Fits.
         :type other: Fits
 
         :param output: Path of the new fits files.
         :type output: str (, optional)
-        
+
         :param max_control_points: The maximum number of control point-sources to find the transformation. [1]
         :type max_control_points: int (, optional)
-        
+
         :param detection_sigma: Factor of background std-dev above which is considered a detection. [1]
         :type detection_sigma: int (, optional)
-        
+
         :param min_area: Minimum number of connected pixels to be considered a source. [1]
         :type min_area: int (, optional)
 
         [1]: https://astroalign.quatrope.org/en/latest/api.html#astroalign.register
 
-        :return: `FitsArray` object of aligned images.
+        :return: FitsArray object of aligned images.
         :rtype: FitsArray
         """
         logger.info(
@@ -796,13 +910,109 @@ class FitsArray:
                     "None of the input images could be aligned")
             return FitsArray.from_paths(aligned_files)
 
+    def cosmic_cleaner(self, output: str = None, override: bool = False, sigclip: float = 4.5, sigfrac: float = 0.3,
+                       objlim: float = 5.0, gain: float = 1.0, readnoise: float = 6.5, satlevel: float = 65535.0,
+                       pssl: float = 0.0, niter: int = 4, sepmed: bool = True, cleantype: str = 'meanmask',
+                       fsmode: str = 'median', psfmodel: str = 'gauss', psffwhm: float = 2.5, psfsize: int = 7,
+                       psfk: np.ndarray = None, psfbeta: float = 4.765, gain_apply: bool = True):
+        """
+
+        :param output: path of the new fits file.
+        :type output: str (, optional)
+
+        :param override: If True will overwrite the new_path if a file is already exists.
+        :type override: bool (, optional)
+
+        :param sigclip: Laplacian-to-noise limit for cosmic ray detection. Lower values will flag more pixels as cosmic rays. Default: 4.5. see [1]
+        :type sigclip: float (, optional)
+
+        :param sigfrac: Fractional detection limit for neighboring pixels. For cosmic ray neighbor pixels, a Laplacian-to-noise detection limit of sigfrac * sigclip will be used. Default: 0.3. see [1]
+        :type sigfrac: float (, optional)
+
+        :param objlim: Minimum contrast between Laplacian image and the fine structure image. Increase this value if cores of bright stars are flagged as cosmic rays. Default: 5.0. see [1]
+        :type objlim: float (, optional)
+
+        :param gain: Gain of the image (electrons / ADU). We always need to work in electrons for cosmic ray detection. Default: 1.0 see [1]
+        :type gain: float (, optional)
+
+        :param readnoise: Read noise of the image (electrons). Used to generate the noise model of the image. Default: 6.5. see [1]
+        :type readnoise: float (, optional)
+
+        :param satlevel: Saturation level of the image (electrons). This value is used to detect saturated stars and pixels at or above this level are added to the mask. Default: 65535.0. see [1]
+        :type satlevel: float (, optional)
+
+        :param pssl: Previously subtracted sky level in ADU. We always need to work in electrons for cosmic ray detection, so we need to know the sky level that has been subtracted so we can add it back in. Default: 0.0. see [1]
+        :type pssl: float (, optional)
+
+        :param niter: Number of iterations of the LA Cosmic algorithm to perform. Default: 4. see [1]
+        :type niter: int (, optional)
+
+        :param sepmed: Use the separable median filter instead of the full median filter. The separable median is not identical to the full median filter, but they are approximately the same, the separable median filter is significantly faster, and still detects cosmic rays well. Note, this is a performance feature, and not part of the original L.A. Cosmic. Default: True. see [1]
+        :type sepmed: float (, optional)
+
+        :param cleantype: Set which clean algorithm is used: 1) "median": An unmasked 5x5 median filter. 2) "medmask": A masked 5x5 median filter. 3) "meanmask": A masked 5x5 mean filter. 4) "idw": A masked 5x5 inverse distance weighted interpolation. Default: "meanmask". see [1]
+        :type cleantype: str (, optional)
+
+        :param fsmode: Method to build the fine structure image: 1) "median": Use the median filter in the standard LA Cosmic algorithm. 2) "convolve": Convolve the image with the psf kernel to calculate the fine structure image. Default: "median". see [1]
+        :type fsmode: float (, optional)
+
+        :param psfmodel: Model to use to generate the psf kernel if fsmode == ‘convolve’ and psfk is None. The current choices are Gaussian and Moffat profiles: - "gauss" and "moffat" produce circular PSF kernels. - The "gaussx" and "gaussy" produce Gaussian kernels in the x and y directions respectively. Default: "gauss". see [1]
+        :type psfmodel: str (, optional)
+
+        :param psffwhm: Full Width Half Maximum of the PSF to use to generate the kernel. Default: 2.5. see [1]
+        :type psffwhm: float (, optional)
+
+        :param psfsize: Size of the kernel to calculate. Returned kernel will have size psfsize x psfsize. psfsize should be odd. Default: 7. see [1]
+        :type psfsize: int (, optional)
+
+        :param psfk: PSF kernel array to use for the fine structure image if fsmode == 'convolve'. If None and fsmode == 'convolve', we calculate the psf kernel using psfmodel. Default: None. see [1]
+        :type psfk: np.ndarray (with float dtype)  (, optional)
+
+        :param psfbeta:
+        :type psfbeta: float (, optional)
+
+        :param gain_apply: If True, return gain-corrected data, with correct units, otherwise do not gain-correct the data. Default is True to preserve backwards compatibility. see [1]
+        :type gain_apply: float (, optional)
+
+        [1]: https://ccdproc.readthedocs.io/en/latest/api/ccdproc.cosmicray_lacosmic.html
+
+        :return: cleaned fits
+        :rtype: Fits
+        """
+        logger.info(f"Starting Cosmic clean. Parameters: alot...")
+
+        with Fixer.to_new_directory(output, self) as new_files:
+            with open(new_files, "r") as f2r:
+                cleaned_files = []
+                new_files = f2r.readlines()
+                for fits, new_file in zip(self, new_files):
+                    try:
+
+                        new_fits, _ = fits.cosmic_cleaner(output=new_fits, sigclip=sigclip, sigfrac=sigfrac,
+                                                          objlim=objlim, gain=gain, readnoise=readnoise,
+                                                          satlevel=satlevel, pssl=pssl, niter=niter, sepmed=sepmed,
+                                                          cleantype=cleantype, fsmode=fsmode, psfmodel=psfmodel,
+                                                          psffwhm=psffwhm, psfsize=psfsize, psfk=psfk, psfbeta=psfbeta,
+                                                          gain_apply=gain_apply)
+
+                        cleaned_files.append(abs(new_fits))
+                    except astroalign.MaxIterError:
+                        pass
+                    except AlignError:
+                        pass
+            if len(cleaned_files) < 1:
+                logger.error(f"None of the input images could be cleaned")
+                raise ImageCountError(
+                    "None of the input images could be cleaned")
+            return FitsArray.from_paths(cleaned_files)
+
     def show(self, scale: bool = True, interval: float = 1):
         """
-        Animates the Images using `matplotlib`.
-        
-        :param scale: Scales the Image if `True`.
+        Animates the Images using matplotlib.
+
+        :param scale: Scales the Image if True.
         :type scale: bool (, optional)
-        
+
         :param interval: Interval of the animation. The smaller the value the faster the animation.
         :type interval: float (, optional)
 
@@ -833,11 +1043,11 @@ class FitsArray:
         plt.show()
 
     def groupby(
-        self, groups: Union[str, List[str]]
+            self, groups: Union[str, List[str]]
     ) -> Dict[Hashable, FitsArray]:
         """
-        Groups `FitsArray` by given key in header. Returns a `dict` with tuple of keys as key and FitsArray as value.
-        
+        Groups FitsArray by given key in header. Returns a dict with tuple of keys as key and FitsArray as value.
+
         :param groups: Key(s).
         :type groups: str or List[str]
 
@@ -865,18 +1075,17 @@ class FitsArray:
 
     def save_as(self, output: str) -> FitsArray:
         """
-        Saves the `FitsArray` files to `output`.
-        
+        Saves the FitsArray files to output.
+
         :param output: new directory to save files.
         :type output: str
 
-        :return: new `FitsArray` object of saved fits files.
+        :return: new FitsArray object of saved fits files.
         :rtype: FitsArray
         """
         logger.info(f"saving as. Parameters: {output=}")
         with self.at_file() as self_at:
             with Fixer.to_new_directory(output, self) as new_at:
-
                 iraf.imutil.imcopy.unlearn()
                 iraf.imutil.imcopy(
                     f"'@{self_at}'", f"'@{new_at}'", verbose="no")

@@ -1,5 +1,7 @@
 # piron
 
+![piron](assets/piron.svg)
+
 Photometry IRaf pythON (`prion`) is a package designed for astronomers to do photometry.
 
 ## Installation
@@ -21,3 +23,5 @@ GNU-GPL V3
 
 ## Author
 Mohammad S.Niaei
+
+m.shemuni@gmail.com

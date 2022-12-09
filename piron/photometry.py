@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from subprocess import PIPE
 from typing import Tuple, Union
-
+from logging import Logger, getLogger
 import pandas as pd
 from photutils.aperture import (CircularAnnulus, CircularAperture,
                                 aperture_photometry)
@@ -21,7 +21,7 @@ class APhot:
     """
     Creates an Aperture Photometry Object.
     
-    :param fits_array: A `FitsArray`.
+    :param fits_array: A FitsArray.
     :type fits_array: FitsArray
 
     """
@@ -29,7 +29,9 @@ class APhot:
     def __init__(self, fits_array: FitsArray) -> None:
         """Constructor method.
         """
-        logger.info("Creating an instance from APhot")
+        self.logger = logger or getLogger("dummy")
+
+        self.logger.info("Creating an instance from APhot")
         self.fits_array = fits_array
         self.ZMag = 25
 
@@ -74,9 +76,9 @@ class APhot:
         extract: Union[str, list[str]] = None,
     ) -> pd.DataFrame:
         """
-        Does photometry of given FitsArray using `photutils` and returns a `pd.DataFrame`.
+        Does photometry of given FitsArray using photutils and returns a pd.DataFrame.
         
-        :param points: A dataframe with `x` (`xcentroid`) and `y` (`ycentroid`) coordinates of sources for photometry.
+        :param points: A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
         :type points: pd.DataFrame
         
         :param radius: Aperture value.
@@ -159,9 +161,9 @@ class APhot:
         self, points: pd.DataFrame, radius: int, extract: list[str] = None
     ) -> pd.DataFrame:
         """
-        Does photometry of given FitsArray using `sep` and returns a `pd.DataFrame`.
+        Does photometry of given FitsArray using sep and returns a pd.DataFrame.
         
-        :param points: A dataframe with `x` (`xcentroid`) and `y` (`ycentroid`) coordinates of sources for photometry.
+        :param points: A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
         :type points: pd.DataFrame
         
         :param radius: Aperture value.
@@ -232,9 +234,9 @@ class APhot:
         extract: list[str] = None,
     ) -> pd.DataFrame:
         """
-        Does photometry of given FitsArray using `iraf` and returns a `pd.DataFrame`.
+        Does photometry of given FitsArray using iraf and returns a pd.DataFrame.
         
-        :param points: A dataframe with `x` (`xcentroid`) and `y` (`ycentroid`) coordinates of sources for photometry.
+        :param points: A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
         :type points: pd.DataFrame
         
         :param aperture: Aperture value.
