@@ -1,28 +1,23 @@
 from subprocess import PIPE
-from logging import Logger, getLogger
+
 from pyraf import iraf
 
-# from .base_logger import logger
+from .base_logger import logger
 from .errors import ImageCountError, NothingToDoError
 from .fits import Fits, FitsArray
 from .utils import Fixer
 
 
 class Calibration:
-    """
-    Creates a Calibration Object.
-    
-    :param fits_array: A FitsArray.
-    :type fits_array: FitsArray
-    """
-    
-    def __init__(self, fits_array: FitsArray, logger: Logger) -> None:
-        """Constructor method.
+    def __init__(self, fits_array: FitsArray) -> None:
         """
-        self.logger = logger or getLogger("dummy")
+        Constructor method.
+        Creates a Calibration Object.
 
-        self.logger.info(f"Creating an instance from {self.__class__.__name__}")
-
+        :param fits_array: A FitsArray.
+        :type fits_array: FitsArray
+        """
+        logger.info(f"Creating an instance from {self.__class__.__name__}")
         if len(fits_array) < 1:
             logger.error("There is no image to process")
             raise ImageCountError("There is no image to process")
@@ -38,13 +33,7 @@ class Calibration:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def calibrate(
-        self,
-        zero: Fits = None,
-        dark: Fits = None,
-        flat: Fits = None,
-        output: str = None,
-    ) -> FitsArray:
+    def calibrate(self, zero: Fits = None, dark: Fits = None, flat: Fits = None, output: str = None) -> FitsArray:
         """
         Returns the calibrated FitsArray.
         
@@ -63,16 +52,10 @@ class Calibration:
         :return: Calibrated FitsArray.
         :rtype: FitsArray
         """
-        logger.info(
-            f"Calibration started. Parameters: {output=}, {zero=}, {dark=}, {flat=}"
-        )
+        logger.info(f"Calibration started. Parameters: {output=}, {zero=}, {dark=}, {flat=}")
         if all([v is None for v in [zero, dark, flat]]):
-            logger.error(
-                "Nothing neither of zero, dark ot flat ise provided. Nothing to do."
-            )
-            raise NothingToDoError(
-                "Nothing neither of zero, dark ot flat ise provided. Nothing to do."
-            )
+            logger.error("Nothing neither of zero, dark ot flat ise provided. Nothing to do.")
+            raise NothingToDoError("Nothing neither of zero, dark ot flat ise provided. Nothing to do.")
 
         zero_path = "" if zero is None else abs(zero)
         dark_path = "" if dark is None else abs(dark)
@@ -82,20 +65,10 @@ class Calibration:
             with Fixer.to_new_directory(output, self.fits_array) as new_files:
                 iraf.noao.imred.ccdred.ccdproc.unlearn()
 
-                iraf.noao.imred.ccdred.ccdproc(
-                    f"'@{at_file}'",
-                    output=f"'@{new_files}'",
-                    noproc="no",
-                    ccdtype="",
-                    fixpix="no",
-                    oversca="no",
-                    trim="no",
-                    zerocor=Fixer.yesnoify(zero is not None),
-                    zero=zero_path,
-                    darkcor=Fixer.yesnoify(dark is not None),
-                    dark=dark_path,
-                    flatcor=Fixer.yesnoify(flat is not None),
-                    flat=flat_path,
-                )
+                iraf.noao.imred.ccdred.ccdproc(f"'@{at_file}'", output=f"'@{new_files}'", noproc="no", ccdtype="",
+                                               fixpix="no", oversca="no", trim="no",
+                                               zerocor=Fixer.yesnoify(zero is not None), zero=zero_path,
+                                               darkcor=Fixer.yesnoify(dark is not None), dark=dark_path,
+                                               flatcor=Fixer.yesnoify(flat is not None), flat=flat_path)
                 with open(new_files, "r") as to_save:
                     return FitsArray.from_paths(to_save.read().split())

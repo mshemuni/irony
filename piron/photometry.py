@@ -3,10 +3,10 @@ from __future__ import annotations
 import math
 from subprocess import PIPE
 from typing import Tuple, Union
-from logging import Logger, getLogger
+
+import numpy as np
 import pandas as pd
-from photutils.aperture import (CircularAnnulus, CircularAperture,
-                                aperture_photometry)
+from photutils.aperture import (CircularAnnulus, CircularAperture, aperture_photometry)
 from photutils.utils import calc_total_error
 from pyraf import iraf
 from sep import sum_circle
@@ -18,20 +18,16 @@ from .utils import Fixer
 
 
 class APhot:
-    """
-    Creates an Aperture Photometry Object.
-    
-    :param fits_array: A FitsArray.
-    :type fits_array: FitsArray
-
-    """
-    
     def __init__(self, fits_array: FitsArray) -> None:
-        """Constructor method.
         """
-        self.logger = logger or getLogger("dummy")
+        Constructor method.
 
-        self.logger.info("Creating an instance from APhot")
+        Creates an Aperture Photometry Object.
+
+        :param fits_array: A FitsArray.
+        :type fits_array: FitsArray
+        """
+        logger.info("Creating an instance from APhot")
         self.fits_array = fits_array
         self.ZMag = 25
 
@@ -39,24 +35,19 @@ class APhot:
         iraf.digiphot.apphot(Stdout=PIPE)
 
     def __str__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(id: {id(self)}, fits_array: {self.fits_array})"
-        )
+        return f"{self.__class__.__name__}(id: {id(self)}, fits_array: {self.fits_array})"
 
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __flux2mag(
-        self, flux: float, flux_error: float, exptime: float
-    ) -> Tuple[float, float]:
-        logger.info(
-            f"Converting to mag from flux. Parameters: {flux=}, {flux_error=}, {exptime=}"
-        )
+    def __flux2mag(self, flux: float, flux_error: float, exptime: float) -> Tuple[float, float]:
+        logger.info(f"Converting to mag from flux. Parameters: {flux=}, {flux_error=}, {exptime=}")
+
         if exptime == 0:
             mag = self.ZMag + -2.5 * math.log10(flux)
         else:
-            mag = self.ZMag + -2.5 * \
-                math.log10(flux) + 2.5 * math.log10(exptime)
+            mag = self.ZMag + -2.5 * math.log10(flux) + 2.5 * math.log10(exptime)
+
         merr = math.sqrt(flux / flux_error)
         if math.isinf(merr):
             merr = 0
@@ -68,13 +59,8 @@ class APhot:
         headers = self.fits_array.hselect(keys)
         return headers
 
-    def photutils(
-        self,
-        points: pd.DataFrame,
-        radius: int,
-        radius_out: int = None,
-        extract: Union[str, list[str]] = None,
-    ) -> pd.DataFrame:
+    def photutils(self, points: pd.DataFrame, radius: int, radius_out: int = None,
+                  extract: Union[str, list[str]] = None) -> pd.DataFrame:
         """
         Does photometry of given FitsArray using photutils and returns a pd.DataFrame.
         
@@ -93,73 +79,41 @@ class APhot:
         :return: Photometric result.
         :rtype: pd.DataFrame
         """
-        logger.info(
-            f"Photutils photometry. Parameters: {points=}, {radius=}, {radius_out=}, {extract=}"
-        )
+        logger.info(f"Photutils photometry. Parameters: {points=}, {radius=}, {radius_out=}, {extract=}")
         if len(points) < 1:
             logger.error("No coordinates were found")
             raise NumberOfElementError("No coordinates were found")
 
         table = []
         if radius_out is None:
-            aperture = CircularAperture(
-                points[["xcentroid", "ycentroid"]].to_numpy().tolist(), r=radius
-            )
+            aperture = CircularAperture(points[["xcentroid", "ycentroid"]].to_numpy().tolist(), r=radius)
         else:
-            aperture = CircularAnnulus(
-                points[["xcentroid", "ycentroid"]].to_numpy().tolist(),
-                r_in=radius,
-                r_out=radius_out,
-            )
+            aperture = CircularAnnulus(points[["xcentroid", "ycentroid"]].to_numpy().tolist(), r_in=radius,
+                                       r_out=radius_out)
         for fits in self.fits_array:
-            error = calc_total_error(
-                fits.data, fits.background(
-                    as_array=True), fits.header["EXPTIME"])
+            clean_d = fits.data - fits.background().rms()
+            error = calc_total_error(fits.data, fits.background(as_array=True), fits.header["EXPTIME"])
             phot_table = aperture_photometry(fits.data, aperture, error=error)
             for line in phot_table:
-                table.append(
-                    [
-                        abs(fits),
-                        line["xcenter"].value,
-                        line["ycenter"].value,
-                        *self.__flux2mag(
-                            line["aperture_sum"],
-                            line["aperture_sum_err"],
-                            fits.header["EXPTIME"],
-                        ),
-                        line["aperture_sum"],
-                        line["aperture_sum_err"],
-                    ]
-                )
+                value = clean_d[int(line["xcenter"].value)][int(line["ycenter"].value)]
+                snr = np.nan if value < 0 else math.sqrt(value)
+                table.append([abs(fits), line["xcenter"].value, line["ycenter"].value,
+                              *self.__flux2mag(line["aperture_sum"], line["aperture_sum_err"], fits.header["EXPTIME"]),
+                              line["aperture_sum"], line["aperture_sum_err"], snr])
 
-        phot_data = pd.DataFrame(
-            table,
-            columns=[
-                "image",
-                "xcentroid",
-                "ycentroid",
-                "mag",
-                "merr",
-                "flux",
-                "ferr"],
-        ).set_index("image")
+        phot_data = pd.DataFrame(table, columns=["image", "xcentroid", "ycentroid", "mag", "merr", "flux", "ferr",
+                                                 "SNR"]).set_index("image")
 
         phot_data = phot_data.astype(float)
 
         if extract is not None:
             extracted_headers = self.__extract(extract)
             if len(extracted_headers) != 0:
-                return pd.merge(
-                    phot_data,
-                    extracted_headers,
-                    left_index=True,
-                    right_index=True)
+                return pd.merge(phot_data, extracted_headers, left_index=True, right_index=True)
 
         return phot_data
 
-    def sep(
-        self, points: pd.DataFrame, radius: int, extract: list[str] = None
-    ) -> pd.DataFrame:
+    def sep(self, points: pd.DataFrame, radius: int, extract: list[str] = None) -> pd.DataFrame:
         """
         Does photometry of given FitsArray using sep and returns a pd.DataFrame.
         
@@ -175,64 +129,34 @@ class APhot:
         :return: Photometric result.
         :rtype: pd.DataFrame
         """
-        logger.info(
-            f"sep photometry. Parameters: {points=}, {radius=}, {extract=}")
+        logger.info(f"sep photometry. Parameters: {points=}, {radius=}, {extract=}")
         if len(points) < 1:
             logger.error("No coordinates were found")
             raise NumberOfElementError("No coordinates were found")
 
         table = []
         for fits in self.fits_array:
-            fluxes, ferrs, flag = sum_circle(
-                fits.data, points["xcentroid"], points["xcentroid"], radius
-            )
-            for x, y, flux, ferr in zip(
-                points["xcentroid"], points["xcentroid"], fluxes, ferrs
-            ):
-                table.append(
-                    [
-                        abs(fits),
-                        x,
-                        y,
-                        *self.__flux2mag(flux, ferr, fits.header["EXPTIME"]),
-                        flux,
-                        ferr,
-                    ]
-                )
+            clean_d = fits.data - fits.background().rms()
+            fluxes, ferrs, flag = sum_circle(fits.data, points["xcentroid"], points["ycentroid"], radius)
+            for x, y, flux, ferr in zip(points["xcentroid"], points["ycentroid"], fluxes, ferrs):
+                value = clean_d[int(x)][int(y)]
+                snr = np.nan if value < 0 else math.sqrt(value)
+                table.append([abs(fits), x, y, *self.__flux2mag(flux, ferr, fits.header["EXPTIME"]), flux, ferr, snr])
 
-        phot_data = pd.DataFrame(
-            table,
-            columns=[
-                "image",
-                "xcentroid",
-                "ycentroid",
-                "mag",
-                "merr",
-                "flux",
-                "ferr"],
-        ).set_index("image")
+        phot_data = pd.DataFrame(table, columns=["image", "xcentroid", "ycentroid", "mag", "merr", "flux", "ferr",
+                                                 "SNR"]).set_index("image")
 
         phot_data = phot_data.astype(float)
 
         if extract is not None:
             extracted_headers = self.__extract(extract)
             if len(extracted_headers) != 0:
-                return pd.merge(
-                    phot_data,
-                    extracted_headers,
-                    left_index=True,
-                    right_index=True)
+                return pd.merge(phot_data, extracted_headers, left_index=True, right_index=True)
 
         return phot_data
 
-    def iraf(
-        self,
-        points: pd.DataFrame,
-        aperture: float,
-        annulus: float,
-        dannulu: float,
-        extract: list[str] = None,
-    ) -> pd.DataFrame:
+    def iraf(self, points: pd.DataFrame, aperture: float, annulus: float, dannulu: float,
+             extract: list[str] = None) -> pd.DataFrame:
         """
         Does photometry of given FitsArray using iraf and returns a pd.DataFrame.
         
@@ -280,72 +204,34 @@ class APhot:
         with self.fits_array.at_file() as at_file:
             with Fixer.to_new_directory(None, self.fits_array) as output_files:
                 with Fixer.at_file_from_list(
-                    " ".join(map(str, each))
-                    for each in points[["xcentroid", "ycentroid"]].to_numpy()
-                ) as coo_file:
+                        " ".join(map(str, each)) for each in points[["xcentroid", "ycentroid"]].to_numpy()) as coo_file:
 
-                    iraf.digiphot.apphot.phot(
-                        f"'@{at_file}'",
-                        coords=f"{coo_file}",
-                        output=f"'@{output_files}'",
-                        interac="no",
-                        verify="no",
-                    )
-                    res = iraf.txdump(
-                        f"'@{output_files}'",
-                        "id,mag,merr,flux,stdev",
-                        "yes",
-                        Stdout=PIPE,
-                    )
-                    res = pd.DataFrame(
-                        [each.split() for each in res],
-                        columns=["id", "mag", "merr", "flux", "stdev"],
-                    )
+                    iraf.digiphot.apphot.phot(f"'@{at_file}'", coords=f"{coo_file}", output=f"'@{output_files}'",
+                                              interac="no", verify="no")
+                    res = iraf.txdump(f"'@{output_files}'", "id,mag,merr,flux,stdev", "yes", Stdout=PIPE)
+                    res = pd.DataFrame([each.split() for each in res], columns=["id", "mag", "merr", "flux", "stdev"])
 
                     result = []
 
                     for each in res.groupby("id"):
-                        coords = points.iloc[int(each[0]) - 1][
-                            ["xcentroid", "ycentroid"]
-                        ].tolist()
-                        for i, path in zip(
-                                range(len(each[1])), abs(self.fits_array)):
+                        coords = points.iloc[int(each[0]) - 1][["xcentroid", "ycentroid"]].tolist()
+                        for i, fits in zip(range(len(each[1])), self.fits_array):
+                            clean_d = fits.data - fits.background().rms()
                             phot = each[1].iloc[i]
+                            value = clean_d[int(coords[0])][int(coords[0])]
+                            snr = np.nan if value < 0 else math.sqrt(value)
                             result.append(
-                                [
-                                    path,
-                                    coords[0],
-                                    coords[1],
-                                    phot.mag,
-                                    phot.merr,
-                                    phot.flux,
-                                    phot.stdev,
-                                ]
-                            )
+                                [abs(fits), coords[0], coords[1], phot.mag, phot.merr, phot.flux, phot.stdev, snr])
 
-                    phot_data = pd.DataFrame(
-                        result,
-                        columns=[
-                            "image",
-                            "xcentroid",
-                            "ycentroid",
-                            "mag",
-                            "merr",
-                            "flux",
-                            "ferr",
-                        ],
-                    ).set_index("image")
+                    phot_data = pd.DataFrame(result,
+                                             columns=["image", "xcentroid", "ycentroid", "mag", "merr", "flux", "ferr",
+                                                      "SNR"]).set_index("image")
 
                     phot_data = phot_data.astype(float)
 
                     if extract is not None:
                         extracted_headers = self.__extract(extract)
                         if len(extracted_headers) != 0:
-                            return pd.merge(
-                                phot_data,
-                                extracted_headers,
-                                left_index=True,
-                                right_index=True,
-                            )
+                            return pd.merge(phot_data, extracted_headers, left_index=True, right_index=True)
 
                     return phot_data

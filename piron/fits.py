@@ -6,7 +6,7 @@ from glob import glob
 from pathlib import Path
 from subprocess import PIPE
 from typing import Dict, List, Union, Iterator, Hashable
-from logging import Logger, getLogger
+
 import astroalign
 import matplotlib.animation as animation
 import numpy as np
@@ -14,34 +14,29 @@ import pandas as pd
 from astropy.io import fits as fts
 from astropy.stats import sigma_clipped_stats
 from astropy.visualization import ZScaleInterval
+from astroquery.astrometry_net import AstrometryNet
 from matplotlib import pyplot as plt
 from mpl_point_clicker import clicker
 from photutils.detection import DAOStarFinder
 from pyraf import iraf
-from sep import Background
+from sep import Background, extract as sep_extract
 from ccdproc import cosmicray_lacosmic
 
-# from .base_logger import logger
-from .errors import AlignError, ImageCountError
+from .base_logger import logger
+from .errors import AlignError, ImageCountError, NumberOfElementError
 from .utils import Check, Fixer
 
 
 class Fits:
-    """
-    Creates a Fits Object. The file_path must exist.
-    
-    :param path: pathlib.Path object of the fits file.
-    :type path: Path
-
-    """
-
-    def __init__(self, path: Path, logger: Logger):
-        """Constructor method.
+    def __init__(self, path: Path):
         """
-        self.logger = logger or getLogger("dummy")
+        Constructor method.
+        Creates a Fits Object. The file_path must exist.
 
-        self.logger.info(f"Creating an instance from {self.__class__.__name__}")
-
+        :param path: pathlib.Path object of the fits file.
+        :type path: Path
+        """
+        logger.info(f"Creating an instance from {self.__class__.__name__}")
         if not path.exists():
             raise FileNotFoundError("File does not exist")
 
@@ -90,7 +85,6 @@ class Fits:
         logger.info(f"Creating Fits from path. Parameters: {path=}")
         return Fits(Path(path))
 
-    @property
     def imstat(self) -> dict:
         """
         Returns the npix, mean, stddev, min, max of the array as a dict. The default return of IRAF's
@@ -103,13 +97,9 @@ class Fits:
 
         iraf.imutil.imstatistics.unlearn()
         keys = ["npix", "mean", "stddev", "min", "max"]
-        data = [
-            each.split()
-            for each in iraf.imutil.imstatistics(
-                abs(self), fields="image,npix,mean,stddev,min,max", Stdout=PIPE
-            )
-            if not each.startswith("#") and not each.startswith("Error")
-        ]
+        data = [each.split() for each in
+                iraf.imutil.imstatistics(abs(self), fields="image,npix,mean,stddev,min,max", Stdout=PIPE)
+                if not each.startswith("#") and not each.startswith("Error")]
         return {key: float(value) for key, value in zip(keys, data[0][1:])}
 
     @property
@@ -137,8 +127,7 @@ class Fits:
 
         return fts.getdata(abs(self)).astype(float)
 
-    def background(
-            self, as_array: bool = False) -> Union[Background, np.ndarray]:
+    def background(self, as_array: bool = False) -> Union[Background, np.ndarray]:
         """
         Returns the background object of the fits file.
         
@@ -160,6 +149,7 @@ class Fits:
                        fsmode: str = 'median', psfmodel: str = 'gauss', psffwhm: float = 2.5, psfsize: int = 7,
                        psfk: np.ndarray = None, psfbeta: float = 4.765, gain_apply: bool = True):
         """
+        Returns consmic cleaned image.
 
         :param output: path of the new fits file.
         :type output: str (, optional)
@@ -232,21 +222,12 @@ class Fits:
                                         cleantype=cleantype, fsmode=fsmode, psfmodel=psfmodel, psffwhm=psffwhm,
                                         psfsize=psfsize, psfk=psfk, psfbeta=psfbeta, gain_apply=gain_apply)
 
-        fts.writeto(
-            output,
-            newdata.value,
-            header=fts.getheader(abs(self))
-        )
+        fts.writeto(output, newdata.value, header=fts.getheader(abs(self)))
 
         return Fits.from_path(output)
 
-    def hedit(
-            self,
-            keys: Union[str, List[str]],
-            values: Union[str, List[str]] = None,
-            delete: bool = False,
-            value_is_key: bool = False,
-    ) -> None:
+    def hedit(self, keys: Union[str, List[str]], values: Union[str, List[str]] = None, delete: bool = False,
+              value_is_key: bool = False) -> None:
         """
         Edits header of the given file.
         
@@ -265,9 +246,7 @@ class Fits:
         :return: None.
         :rtype: None
         """
-        logger.info(
-            f"hedit started. Parameters: {keys=}, {values=}, {delete=}, {value_is_key=}, {keys=}"
-        )
+        logger.info(f"hedit started. Parameters: {keys=}, {values=}, {delete=}, {value_is_key=}, {keys=}")
 
         if delete:
             if isinstance(keys, str):
@@ -280,11 +259,8 @@ class Fits:
         else:
 
             if not isinstance(values, type(keys)):
-                logger.error(
-                    f"keys and values must both be strings or list of strings")
-                raise ValueError(
-                    "keys and values must both be strings or list of strings"
-                )
+                logger.error(f"keys and values must both be strings or list of strings")
+                raise ValueError("keys and values must both be strings or list of strings")
 
             if isinstance(keys, str):
                 keys = [keys]
@@ -293,10 +269,8 @@ class Fits:
                 values = [values]
 
             if len(keys) != len(values):
-                logger.error(
-                    f"List of keys and values must be equal in length")
-                raise ValueError(
-                    "List of keys and values must be equal in length")
+                logger.error(f"List of keys and values must be equal in length")
+                raise ValueError("List of keys and values must be equal in length")
 
             with fts.open(abs(self), "update") as hdu:
                 for key, value in zip(keys, values):
@@ -327,13 +301,7 @@ class Fits:
 
         return Fits.from_path(path)
 
-    def imarith(
-            self,
-            other: Union[Fits, float, int],
-            operand: str,
-            output: str = None,
-            override: bool = False,
-    ) -> Fits:
+    def imarith(self, other: Union[Fits, float, int], operand: str, output: str = None, override: bool = False) -> Fits:
         """
         Makes an arithmeic calculation on the file. The default behaviour of IRAF's imarith task.
 
@@ -352,38 +320,58 @@ class Fits:
         :return: Fits object of resulting fits of the operation.
         :rtype: Fits
         """
-        logger.info(
-            f"imarith started. Parameters: {other=}, {operand=}, {output=}, {override=}"
-        )
+        logger.info(f"imarith started. Parameters: {other=}, {operand=}, {output=}, {override=}")
 
         if not isinstance(other, (float, int, Fits)):
-            logger.error(
-                f"Please provide either a Fits Object or a numeric value")
-            raise ValueError(
-                "Please provide either a Fits Object or a numeric value")
+            logger.error(f"Please provide either a Fits Object or a numeric value")
+            raise ValueError("Please provide either a Fits Object or a numeric value")
 
         Check.operand(operand)
 
-        output = Fixer.output(
-            output,
-            override=override,
-            delete=True,
-            suffix=".fits",
-            prefix="piron_")
+        output = Fixer.output(output, override=override, delete=True, suffix=".fits", prefix="piron_")
 
         if isinstance(other, Fits):
             other = abs(other)
 
         iraf.imutil.imarith.unlearn()
-        iraf.imutil.imarith(
-            operand1=abs(self), op=operand, operand2=other, result=output
-        )
+        iraf.imutil.imarith(operand1=abs(self), op=operand, operand2=other, result=output)
 
         return Fits.from_path(output)
 
-    def daofind(
-            self, sigma: float = 3, fwhm: float = 3, threshold: float = 5
-    ) -> pd.DataFrame:
+    def extract(self, detection_sigma: float = 5, min_area: float = 5):
+        """
+        Runs astroalign._find_sources to detect sources on the image.
+
+        :param detection_sigma: `thresh = detection_sigma * bkg.globalrms`
+        :type detection_sigma: float
+
+        :param min_area: Minimum area
+        :type min_area: float
+
+        :return: List of sources found on the image.
+        :rtype: pd.DataFrame
+        """
+        bkg = self.background()
+        thresh = detection_sigma * bkg.globalrms
+        sources = sep_extract(self.data - bkg.back(), thresh, minarea=min_area)
+        sources.sort(order="flux")
+        if len(sources) < 0:
+            raise NumberOfElementError("No source was found")
+
+        sources = np.array([list(src) for src in sources])
+        nans = np.empty(len(sources))
+        nans[:] = np.nan
+        return pd.DataFrame(
+            {"npix": sources[:, 1], "tnpix": sources[:, 2], "xmin": sources[:, 3], "xmax": sources[:, 4],
+             "ymin": sources[:, 5], "ymax": sources[:, 6], "xcentroid": sources[:, 7], "ycentroid": sources[:, 8],
+             "x2": sources[:, 9], "y2": sources[:, 10], "xy": sources[:, 11], "errx2": sources[:, 12],
+             "erry2": sources[:, 13], "errxy": sources[:, 14], "a": sources[:, 15], "b": sources[:, 16],
+             "theta": sources[:, 17], "cxx": sources[:, 18], "cyy": sources[:, 19], "cxy": sources[:, 20],
+             "cflux": sources[:, 21], "flux": sources[:, 22], "cpeak": sources[:, 23], "peak": sources[:, 24],
+             "xcpeak": sources[:, 25], "ycpeak": sources[:, 26], "xpeak": sources[:, 27], "ypeak": sources[:, 28],
+             "flag": sources[:, 29], })
+
+    def daofind(self, sigma: float = 3, fwhm: float = 3, threshold: float = 5) -> pd.DataFrame:
         """
         Runs daofind to detect sources on the image.
         
@@ -410,32 +398,12 @@ class Fits:
         sources = daofind(self.data - median)
         if sources is not None:
             return sources.to_pandas()
-        return pd.DataFrame(
-            [],
-            columns=[
-                "id",
-                "xcentroid",
-                "ycentroid",
-                "sharpness",
-                "roundness1",
-                "roundness2",
-                "npix",
-                "sky",
-                "peak",
-                "flux",
-                "mag",
-            ],
-        )
+        return pd.DataFrame([],
+                            columns=["id", "xcentroid", "ycentroid", "sharpness", "roundness1", "roundness2", "npix",
+                                     "sky", "peak", "flux", "mag"])
 
-    def align(
-            self,
-            other: Fits,
-            output: str = None,
-            max_control_points: int = 50,
-            detection_sigma: float = 5,
-            min_area: int = 5,
-            override: bool = False,
-    ) -> Fits:
+    def align(self, other: Fits, output: str = None, max_control_points: int = 50, detection_sigma: float = 5,
+              min_area: int = 5, override: bool = False) -> Fits:
         """
         Runs a Fits object of aligned Image.
         
@@ -464,24 +432,14 @@ class Fits:
 
         """
         logger.info(
-            f"align started. Parameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}"
-            f", {min_area=}, {override=} "
-        )
+            f"align started. Parameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}, {min_area=}, {override=}")
 
         output = Fixer.output(output, override=override)
         try:
-            registered_image, footprint = astroalign.register(
-                self.data,
-                other.data,
-                max_control_points=max_control_points,
-                detection_sigma=detection_sigma,
-                min_area=min_area,
-            )
-            fts.writeto(
-                output,
-                registered_image,
-                header=fts.getheader(
-                    abs(self)))
+            registered_image, footprint = astroalign.register(self.data, other.data,
+                                                              max_control_points=max_control_points,
+                                                              detection_sigma=detection_sigma, min_area=min_area)
+            fts.writeto(output, registered_image, header=fts.getheader(abs(self)))
             return Fits.from_path(output)
         except ValueError:
             raise AlignError("Cannot align two images")
@@ -515,15 +473,50 @@ class Fits:
         plt.yticks([])
         plt.show()
 
-    def coordinate_picker(self, scale: bool = True):
+    def solve(self):
+        pass
+
+    def astrometry(self, api_key, solve_timeout=120):
+        pass
+        # ast = AstrometryNet()
+        # ast.api_key = api_key
+        #
+        # try_again = True
+        # submission_id = None
+        #
+        # while try_again:
+        #     try:
+        #         if not submission_id:
+        #             wcs_header = ast.solve_from_image(abs(self),
+        #                                               submission_id=submission_id)
+        #         else:
+        #             wcs_header = ast.monitor_submission(submission_id,
+        #                                                 solve_timeout=solve_timeout)
+        #     except TimeoutError as e:
+        #         submission_id = e.args[1]
+        #         print("="*82)
+        #         print(e)
+        #     else:
+        #         try_again = False
+        #
+        # if wcs_header:
+        #     print("asd")
+        #     print(wcs_header)
+        #     # with fts.open(abs(self), mode="update") as the_file:
+        #     #     the_file[0].header.append(wcs_header)
+        # else:
+        #     print("dsa")
+        #     print(wcs_header)
+
+    def coordinate_picker(self, scale: bool = True) -> pd.DataFrame:
         """
         Shows the Image using matplotlib and returns a list of coordinates picked by user.
         
         :param scale: Scales the Image if True.
         :type scale: bool (, optional)
 
-        :return: None.
-        :rtype: None
+        :return: List of coordinates selected.
+        :rtype: pd.DataFrame
         """
         if scale:
             zscale = ZScaleInterval()
@@ -545,19 +538,15 @@ class Fits:
 
 
 class FitsArray:
-    """
-    Creates a FitsArray Object. The length of  fits_lists must larger the 0.
-
-    :param fits_list: A list of Fits.
-    :type fits_list: List[Fits]
-    """
-
-    def __init__(self, fits_list: List[Fits], logger: Logger) -> None:
-        """Constructor method
+    def __init__(self, fits_list: List[Fits]) -> None:
         """
-        self.logger = logger or getLogger("dummy")
+        Constructor method
+        Creates a FitsArray Object. The length of  fits_lists must larger the 0.
 
-        self.logger.info(f"Creating an instance from {self.__class__.__name__}")
+        :param fits_list: A list of Fits.
+        :type fits_list: List[Fits]
+        """
+        logger.info(f"Creating an instance from {self.__class__.__name__}")
 
         if len(fits_list) < 1:
             raise ImageCountError("No image was provided")
@@ -632,9 +621,7 @@ class FitsArray:
         """
         logger.info(f"Creating at_file. Parameters: None")
 
-        with tempfile.NamedTemporaryFile(
-                mode="w", delete=True, suffix=".fls", prefix="piron_"
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", delete=True, suffix=".fls", prefix="piron_") as tmp:
             to_write = []
             for each in self.fits_list:
                 to_write.append(abs(each))
@@ -655,24 +642,12 @@ class FitsArray:
 
         iraf.imutil.imstatistics.unlearn()
         with self.at_file() as at_file:
-            return (
-                pd.DataFrame(
-                    [
-                        each.split() for each in iraf.imutil.imstatistics(
-                        f"@{at_file}",
-                        fields="image,npix,mean,stddev,min,max",
-                        Stdout=PIPE,
-                    ) if not each.startswith("#") and not each.startswith("Error")],
-                    columns=(
-                        "image",
-                        "npix",
-                        "mean",
-                        "stddev",
-                        "min",
-                        "max"),
-                ).set_index("image").replace(
-                    {
-                        np.nan: None}).astype(float))
+            return (pd.DataFrame([each.split() for each in
+                                  iraf.imutil.imstatistics(f"@{at_file}", fields="image,npix,mean,stddev,min,max",
+                                                           Stdout=PIPE) if
+                                  not each.startswith("#") and not each.startswith("Error")],
+                                 columns=("image", "npix", "mean", "stddev", "min", "max")).set_index("image").replace(
+                {np.nan: None}).astype(float))
 
     @property
     def header(self) -> pd.DataFrame:
@@ -692,13 +667,8 @@ class FitsArray:
 
         return pd.DataFrame(headers).set_index("image").replace({np.nan: None})
 
-    def hedit(
-            self,
-            keys: Union[str, List[str]],
-            values: Union[str, List[str]] = None,
-            delete: bool = False,
-            value_is_key: bool = False,
-    ) -> None:
+    def hedit(self, keys: Union[str, List[str]], values: Union[str, List[str]] = None, delete: bool = False,
+              value_is_key: bool = False) -> None:
         """
         Edits header of the given file.
 
@@ -717,9 +687,7 @@ class FitsArray:
         :return: None.
         :rtype: None
         """
-        logger.info(
-            f"hedit started. Parameters: {keys=}, {values=}, {delete=}, {value_is_key=}"
-        )
+        logger.info(f"hedit started. Parameters: {keys=}, {values=}, {delete=}, {value_is_key=}")
 
         if delete:
             if isinstance(keys, str):
@@ -731,21 +699,16 @@ class FitsArray:
                             del hdu[0].header[key]
         else:
             if not isinstance(keys, type(values)):
-                logger.error(
-                    f"keys and values must both be strings or list of strings")
-                raise ValueError(
-                    "keys and values must both be strings or list of strings"
-                )
+                logger.error(f"keys and values must both be strings or list of strings")
+                raise ValueError("keys and values must both be strings or list of strings")
 
             if isinstance(keys, str):
                 keys = [keys]
                 values = [values]
 
             if len(keys) != len(values):
-                logger.error(
-                    f"List of keys and values must be equal in length")
-                raise ValueError(
-                    "List of keys and values must be equal in length")
+                logger.error(f"List of keys and values must be equal in length")
+                raise ValueError("List of keys and values must be equal in length")
 
             for fits in self:
                 with fts.open(abs(fits), "update") as hdu:
@@ -781,12 +744,8 @@ class FitsArray:
             return pd.DataFrame()
         return self.header[fields_to_use]
 
-    def imarith(
-            self,
-            other: Union[FitsArray, Fits, float, int, List[float], List[int]],
-            operand: str,
-            output: str = None,
-    ) -> FitsArray:
+    def imarith(self, other: Union[FitsArray, Fits, float, int, List[float], List[int]], operand: str,
+                output: str = None) -> FitsArray:
         """
         Makes an arithmeic calculation on the file(s). The default behaviour of IRAF's imarith task.
 
@@ -802,16 +761,11 @@ class FitsArray:
         :return: FitsArray object of resulting fits of the operation.
         :rtype: FitsArray
         """
-        logger.info(
-            f"imarith started. Parameters: {other=}, {operand=}, {output=}")
+        logger.info(f"imarith started. Parameters: {other=}, {operand=}, {output=}")
 
         if not isinstance(other, (float, int, FitsArray, Fits, List)):
-            logger.error(
-                f"Please provide either a FitsArray Object, Fits Object or a numeric value"
-            )
-            raise ValueError(
-                "Please provide either a FitsArray Object, Fits Object or a numeric value"
-            )
+            logger.error(f"Please provide either a FitsArray Object, Fits Object or a numeric value")
+            raise ValueError("Please provide either a FitsArray Object, Fits Object or a numeric value")
 
         Check.operand(operand)
 
@@ -821,44 +775,23 @@ class FitsArray:
                 if isinstance(other, (Fits, float, int)):
                     if isinstance(other, Fits):
                         other = abs(other)
-                    iraf.imutil.imarith(
-                        operand1=f"'@{self_at}'",
-                        op=f"'{operand}'",
-                        operand2=f"'{other}'",
-                        result=f"'@{new_at}'",
-                        verbose="no",
-                    )
+                    iraf.imutil.imarith(operand1=f"'@{self_at}'", op=f"'{operand}'", operand2=f"'{other}'",
+                                        result=f"'@{new_at}'", verbose="no")
                 else:
                     if isinstance(other, FitsArray):
                         with other.at_file() as other_at:
-                            iraf.imutil.imarith(
-                                operand1=f"'@{self_at}'",
-                                op=f"'{operand}'",
-                                operand2=f"'@{other_at}'",
-                                result=f"'@{new_at}'",
-                                verbose="no",
-                            )
+                            iraf.imutil.imarith(operand1=f"'@{self_at}'", op=f"'{operand}'", operand2=f"'@{other_at}'",
+                                                result=f"'@{new_at}'", verbose="no")
                     else:
                         with Fixer.at_file_from_list(other) as other_at:
-                            iraf.imutil.imarith(
-                                operand1=f"'@{self_at}'",
-                                op=f"'{operand}'",
-                                operand2=f"'@{other_at}'",
-                                result=f"'@{new_at}'",
-                                verbose="no",
-                            )
+                            iraf.imutil.imarith(operand1=f"'@{self_at}'", op=f"'{operand}'", operand2=f"'@{other_at}'",
+                                                result=f"'@{new_at}'", verbose="no")
 
                 with open(new_at, "r") as new_files:
                     return FitsArray.from_paths(new_files.read().split())
 
-    def align(
-            self,
-            other: Fits,
-            output: str = None,
-            max_control_points: int = 50,
-            detection_sigma: float = 5,
-            min_area: int = 5,
-    ) -> FitsArray:
+    def align(self, other: Fits, output: str = None, max_control_points: int = 50, detection_sigma: float = 5,
+              min_area: int = 5) -> FitsArray:
         """
         Runs a FitsArray object of aligned Image.
 
@@ -883,8 +816,7 @@ class FitsArray:
         :rtype: FitsArray
         """
         logger.info(
-            f"align started. Parameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}, {min_area=}"
-        )
+            f"align started. Parameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}, {min_area=}")
 
         with Fixer.to_new_directory(output, self) as new_files:
             with open(new_files, "r") as f2r:
@@ -892,13 +824,8 @@ class FitsArray:
                 new_files = f2r.readlines()
                 for fits, new_file in zip(self, new_files):
                     try:
-                        new_fits = fits.align(
-                            other,
-                            new_file.strip(),
-                            max_control_points=max_control_points,
-                            detection_sigma=detection_sigma,
-                            min_area=min_area,
-                        )
+                        new_fits = fits.align(other, new_file.strip(), max_control_points=max_control_points,
+                                              detection_sigma=detection_sigma, min_area=min_area)
                         aligned_files.append(abs(new_fits))
                     except astroalign.MaxIterError:
                         pass
@@ -906,8 +833,7 @@ class FitsArray:
                         pass
             if len(aligned_files) < 1:
                 logger.error(f"None of the input images could be aligned")
-                raise ImageCountError(
-                    "None of the input images could be aligned")
+                raise ImageCountError("None of the input images could be aligned")
             return FitsArray.from_paths(aligned_files)
 
     def cosmic_cleaner(self, output: str = None, override: bool = False, sigclip: float = 4.5, sigfrac: float = 0.3,
@@ -916,6 +842,7 @@ class FitsArray:
                        fsmode: str = 'median', psfmodel: str = 'gauss', psffwhm: float = 2.5, psfsize: int = 7,
                        psfk: np.ndarray = None, psfbeta: float = 4.765, gain_apply: bool = True):
         """
+        Returns consmic cleaned image array.
 
         :param output: path of the new fits file.
         :type output: str (, optional)
@@ -994,7 +921,6 @@ class FitsArray:
                                                           cleantype=cleantype, fsmode=fsmode, psfmodel=psfmodel,
                                                           psffwhm=psffwhm, psfsize=psfsize, psfk=psfk, psfbeta=psfbeta,
                                                           gain_apply=gain_apply)
-
                         cleaned_files.append(abs(new_fits))
                     except astroalign.MaxIterError:
                         pass
@@ -1002,8 +928,7 @@ class FitsArray:
                         pass
             if len(cleaned_files) < 1:
                 logger.error(f"None of the input images could be cleaned")
-                raise ImageCountError(
-                    "None of the input images could be cleaned")
+                raise ImageCountError("None of the input images could be cleaned")
             return FitsArray.from_paths(cleaned_files)
 
     def show(self, scale: bool = True, interval: float = 1):
@@ -1038,13 +963,10 @@ class FitsArray:
             im.set_array(zscale(self[args % len(self)].data))
             return im,
 
-        _ = animation.FuncAnimation(
-            fig, updatefig, interval=interval, blit=True)
+        _ = animation.FuncAnimation(fig, updatefig, interval=interval, blit=True)
         plt.show()
 
-    def groupby(
-            self, groups: Union[str, List[str]]
-    ) -> Dict[Hashable, FitsArray]:
+    def groupby(self, groups: Union[str, List[str]]) -> Dict[Hashable, FitsArray]:
         """
         Groups FitsArray by given key in header. Returns a dict with tuple of keys as key and FitsArray as value.
 
@@ -1087,8 +1009,7 @@ class FitsArray:
         with self.at_file() as self_at:
             with Fixer.to_new_directory(output, self) as new_at:
                 iraf.imutil.imcopy.unlearn()
-                iraf.imutil.imcopy(
-                    f"'@{self_at}'", f"'@{new_at}'", verbose="no")
+                iraf.imutil.imcopy(f"'@{self_at}'", f"'@{new_at}'", verbose="no")
 
                 with open(new_at, "r") as new_files:
                     return FitsArray.from_paths(new_files.read().split())
