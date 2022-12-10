@@ -21,11 +21,12 @@ class APhot:
     def __init__(self, fits_array: FitsArray) -> None:
         """
         Constructor method.
-
         Creates an Aperture Photometry Object.
 
-        :param fits_array: A FitsArray.
-        :type fits_array: FitsArray
+        Parameters
+        ----------
+        fits_array: FitsArray
+            A FitsArray.
         """
         logger.info("Creating an instance from APhot")
         self.fits_array = fits_array
@@ -63,21 +64,22 @@ class APhot:
                   extract: Union[str, list[str]] = None) -> pd.DataFrame:
         """
         Does photometry of given FitsArray using photutils and returns a pd.DataFrame.
-        
-        :param points: A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
-        :type points: pd.DataFrame
-        
-        :param radius: Aperture value.
-        :type radius: float
-        
-        :param radius_out: Radius for sky measurements.
-        :type radius_out: FitsArray (, optional)
 
-        :param extract: Headers to be extracted from fits files during photometry.
-        :type extract: str o List[str] (, optional)
+        Parameters
+        ----------
+        points: pd.DataFrame
+            A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
+        radius: float
+            Aperture value.
+        radius_out: float, optional
+            Radius for sky measurements.
+        extract: str o List[str], optional
+            Headers to be extracted from fits files during photometry.
 
-        :return: Photometric result.
-        :rtype: pd.DataFrame
+        Returns
+        -------
+        pd.DataFrame
+            Photometric result.
         """
         logger.info(f"Photutils photometry. Parameters: {points=}, {radius=}, {radius_out=}, {extract=}")
         if len(points) < 1:
@@ -116,18 +118,20 @@ class APhot:
     def sep(self, points: pd.DataFrame, radius: int, extract: list[str] = None) -> pd.DataFrame:
         """
         Does photometry of given FitsArray using sep and returns a pd.DataFrame.
-        
-        :param points: A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
-        :type points: pd.DataFrame
-        
-        :param radius: Aperture value.
-        :type radius: float
-        
-        :param extract: Headers to be extracted from fits files during photometry.
-        :type extract: str o List[str] (, optional)
 
-        :return: Photometric result.
-        :rtype: pd.DataFrame
+        Parameters
+        ----------
+        points: pd.DataFrame
+            A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
+        radius: float
+            Aperture value.
+        extract: str o List[str], optional
+            Headers to be extracted from fits files during photometry.
+
+        Returns
+        -------
+        pd.DataFrame
+            Photometric result.
         """
         logger.info(f"sep photometry. Parameters: {points=}, {radius=}, {extract=}")
         if len(points) < 1:
@@ -159,24 +163,24 @@ class APhot:
              extract: list[str] = None) -> pd.DataFrame:
         """
         Does photometry of given FitsArray using iraf and returns a pd.DataFrame.
-        
-        :param points: A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
-        :type points: pd.DataFrame
-        
-        :param aperture: Aperture value.
-        :type aperture: float
-        
-        :param annulus: Annulus for sky measurements.
-        :type annulus: float (, optional)
-        
-        :param dannulu: Dannulu for sky measurements.
-        :type dannulu: float (, optional)
-        
-        :param extract: Headers to be extracted from fits files during photometry.
-        :type extract: str o List[str] (, optional)
 
-        :return: Photometric result.
-        :rtype: pd.DataFrame
+        Parameters
+        ----------
+        points: pd.DataFrame
+            A dataframe with x (xcentroid) and y (ycentroid) coordinates of sources for photometry.
+        aperture: float
+            Aperture value.
+        annulus: float
+            Annulus for sky measurements.
+        dannulu: float
+            Dannulu for sky measurements.
+        extract: str o List[str], optional
+            Headers to be extracted from fits files during photometry.
+
+        Returns
+        -------
+        pd.DataFrame
+            Photometric result.
         """
         logger.info("iraf photometry")
         if len(points) < 1:

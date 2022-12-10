@@ -8,7 +8,7 @@ from pandas.testing import assert_frame_equal
 from photutils.detection import DAOStarFinder
 from sep import Background
 
-from piron import Fits
+from irony import Fits
 
 
 class TestFits(unittest.TestCase):

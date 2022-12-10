@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from piron import Combine, FitsArray
+from irony import Combine, FitsArray
 
 
 class TestCombine(unittest.TestCase):

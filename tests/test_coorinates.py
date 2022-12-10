@@ -1,6 +1,6 @@
 import unittest
 
-from piron import Coordinates
+from irony import Coordinates
 
 
 class TestCoordinates(unittest.TestCase):

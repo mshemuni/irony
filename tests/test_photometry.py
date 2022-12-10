@@ -1,6 +1,6 @@
 import unittest
 
-from piron import APhot, FitsArray, Fixer
+from irony import APhot, FitsArray, Fixer
 
 
 class TestPhotometry(unittest.TestCase):

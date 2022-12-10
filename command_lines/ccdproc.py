@@ -12,8 +12,8 @@ def ccdproc(files: List[str], output: str, zero: str, dark: str, flat: str) -> N
     :param flat: Flat field calibration images.
     :return: None
     """
-    from piron.errors import NothingToDoError
-    from piron import Calibration, Fits, FitsArray
+    from irony.errors import NothingToDoError
+    from irony import Calibration, Fits, FitsArray
     from pathlib import Path
 
     if not Path(output).is_dir():

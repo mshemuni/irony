@@ -4,8 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
-from piron import FitsArray
-from piron.errors import ImageCountError
+from irony import FitsArray
+from irony.errors import ImageCountError
 
 
 class TestFitsArray(unittest.TestCase):

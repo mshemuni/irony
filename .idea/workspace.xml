@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5d180345-96cb-4bea-9e41-ad235075e880" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/docs/installation.rst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/irony.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/usage.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/piron.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/piron.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/piron.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/command_lines/ccdproc.py" beforeDir="false" afterPath="$PROJECT_DIR$/command_lines/ccdproc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/command_lines/darkcombine.py" beforeDir="false" afterPath="$PROJECT_DIR$/command_lines/darkcombine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/command_lines/flatcombine.py" beforeDir="false" afterPath="$PROJECT_DIR$/command_lines/flatcombine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/command_lines/zerocombine.py" beforeDir="false" afterPath="$PROJECT_DIR$/command_lines/zerocombine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/base_logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/base_logger.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/calculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/calculator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/calibration.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/calibration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/combine.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/combine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/errors.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/fits.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/fits.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/photometry.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/photometry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/piron/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_calculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_calculator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_calibration.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_calibration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_combine.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_combine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_coorinates.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_coorinates.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_fits.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_fits.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_fitsarray.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_fitsarray.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_photometry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_photometry.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2Iiv96ih65M16aoQ9hEzeuoeMHa" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/mshem/OneDrive/Belgeler/irony/docs",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\mshem\OneDrive\Belgeler\irony\docs" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mshem\OneDrive\Belgeler\irony" />
+      <recent name="C:\Users\mshem\OneDrive\Belgeler\irony\docs" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="piron" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5d180345-96cb-4bea-9e41-ad235075e880" name="Changes" comment="" />
+      <created>1670677063817</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1670677063817</updated>
+      <workItem from="1670677065484" duration="1662000" />
+      <workItem from="1670684042201" duration="18003000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/irony$main.coverage" NAME="main Coverage Results" MODIFIED="1670697259286" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>

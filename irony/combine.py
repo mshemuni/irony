@@ -14,8 +14,10 @@ class Combine:
         Constructor method
         Creates a Combine Object.
 
-        :param fits_array: A FitsArray.
-        :type fits_array: FitsArray
+        Parameters
+        ----------
+        fits_array: FitsArray
+            A FitsArray.
         """
         logger.info(f"Creating an instance from {self.__class__.__name__}")
         if len(fits_array) < 1:
@@ -36,21 +38,22 @@ class Combine:
     def combine(self, operation: str, output: str = None, override: bool = False, reject: str = None) -> Fits:
         """
         Returns the combined Fits of FitsArray.
-        
-        :param operation: Type of operation.
-        :type operation: str
-        
-        :param output: path of the new fits file.
-        :type output: str (, optional)
-        
-        :param override: Force (overwrite) the output if a file with the same name already exist.
-        :type override: bool (, optional)
-        
-        :param reject: Rejection method.
-        :type reject: str (, optional)
 
-        :return: Combined Fits of FitsArray.
-        :rtype: Fits
+        Parameters
+        ----------
+        operation: str
+            Type of operation.
+        output: str, optional
+            path of the new fits file.
+        override: bool, optional
+            Force (overwrite) the output if a file with the same name already exist.
+        reject: str, optional
+            Rejection method.
+
+        Returns
+        -------
+        Fits
+            Combined Fits of FitsArray.
         """
         logger.info(f"combine started. Parameters: {operation=}, {output=}, {override=}, {reject=}")
         Check.operation(operation)
@@ -73,21 +76,22 @@ class Combine:
     def zerocombine(self, operation: str, output: str = None, override: bool = False, reject: str = None) -> Fits:
         """
         Returns the zerocombine Fits of FitsArray.
-        
-        :param operation: Type of operation. 
-        :type operation: str
-        
-        :param output: Path of the new fits file.
-        :type output: str (, optional)
-        
-        :param override: Force (overwrite) the output if a file with the same name already exist.
-        :type override: bool (, optional)
-        
-        :param reject: Rejection method.
-        :type reject: str (, optional)
 
-        :return: Combined Fits of FitsArray.
-        :rtype: Fits
+        Parameters
+        ----------
+        operation: str
+            Type of operation.
+        output: str, optional
+            Path of the new fits file.
+        override: bool, optional
+            Force (overwrite) the output if a file with the same name already exist.
+        reject: str, optional
+            Rejection method.
+
+        Returns
+        -------
+        Fits
+            Combined Fits of FitsArray.
         """
         logger.info(f"zerocombine started. Parameters: {operation=}, {output=}, {override=}, {reject=}")
         Check.operation(operation)
@@ -112,24 +116,24 @@ class Combine:
                     scale: str = None) -> Fits:
         """
         Returns the darkcombine Fits of FitsArray.
-        
-        :param operation: Type of operation. 
-        :type operation: str
-        
-        :param output: Path of the new fits file.
-        :type output: str (, optional)
-        
-        :param override: Force (overwrite) the output if a file with the same name already exist.
-        :type override: bool (, optional)
-        
-        :param reject: Rejection method.
-        :type reject: str (, optional)
-        
-        :param scale: Scaling method.
-        :type scale: str (, optional)
 
-        :return: Combined Fits of FitsArray.
-        :rtype: Fits
+        Parameters
+        ----------
+        operation: str
+            Type of operation.
+        output: str, optional
+            Path of the new fits file.
+        override: bool, optional
+            Force (overwrite) the output if a file with the same name already exist.
+        reject: str, optional
+            Rejection method.
+        scale: str, optional
+            Scaling method.
+
+        Returns
+        -------
+        Fits
+            Combined Fits of FitsArray.
         """
         logger.info(
             f"darkcombine started. Parameters: {operation=}, {output=}, {override=}, {reject=}, {scale=}"
@@ -158,24 +162,24 @@ class Combine:
                     scale: str = None) -> Fits:
         """
         Returns the flatcombine Fits of FitsArray.
-        
-        :param operation: Type of operation. 
-        :type operation: str
-        
-        :param output: Path of the new fits file.
-        :type output: str (, optional)
-        
-        :param override: Force (overwrite) the output if a file with the same name already exist.
-        :type override: bool (, optional)
-        
-        :param reject: Rejection method.
-        :type reject: str (, optional)
-        
-        :param scale: Scaling method.
-        :type scale: str (, optional)
 
-        :return: Combined Fits of FitsArray.
-        :rtype: Fits
+        Parameters
+        ----------
+        operation: str
+            Type of operation.
+        output: str, optional
+            Path of the new fits file.
+        override: bool, optional
+            Force (overwrite) the output if a file with the same name already exist.
+        reject: str, optional
+            Rejection method.
+        scale: str, optional
+            Scaling method.
+
+        Returns
+        -------
+        Fits
+            Combined Fits of FitsArray.
         """
         logger.info(f"flatcombine started. Parameters: {operation=}, {output=}, {override=}, {reject=}, {scale=}")
         Check.operation(operation)
@@ -201,16 +205,18 @@ class Combine:
     def imsum(self, output: str = None, override: bool = False) -> Fits:
         """
         Returns the imsum Fits of FitsArray.
-        
-        
-        :param output: Path of the new fits file.
-        :type output: str (, optional)
-        
-        :param override: Force (overwrite) the output if a file with the same name already exist.
-        :type override: bool (, optional)
 
-        :return: sum of FitsArray.
-        :rtype: Fits
+        Parameters
+        ----------
+        output: str, optional
+            Path of the new fits file.
+        override: bool, optional
+            Force (overwrite) the output if a file with the same name already exist.
+
+        Returns
+        -------
+        Fits
+            Sum of FitsArray.
         """
         logger.info(f"imsum started. Parameters:{output=}, {override=}")
         if len(self.fits_array) < 2:

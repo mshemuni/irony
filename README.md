@@ -1,13 +1,13 @@
 # piron
 
-![piron](assets/piron.svg)
+![piron](assets/irony.svg)
 
-Photometry IRaf pythON (`prion`) is a package designed for astronomers to do photometry.
+ IRaf pythON photometrY  (`irony`) is a package designed for astronomers to do photometry.
 
 ## Installation
 
 ```shell
-pip install piron
+pip install irony
 ```
 
 ## Examples

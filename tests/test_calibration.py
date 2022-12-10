@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from piron import Calibration, Fits, FitsArray
+from irony import Calibration, Fits, FitsArray
 
 
 class TestCalibration(unittest.TestCase):

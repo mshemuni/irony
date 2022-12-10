@@ -1,6 +1,6 @@
 import unittest
 
-from piron import Calculator, Coordinates, FitsArray
+from irony import Calculator, Coordinates, FitsArray
 
 
 class TestCalculator(unittest.TestCase):
