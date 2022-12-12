@@ -63,7 +63,7 @@ class Fixer:
         return value
 
     @classmethod
-    def output(cls, value: str, override: bool = False, delete: bool = True, prefix: str = "piron_", suffix: str = ".fits") -> str:
+    def output(cls, value: str, override: bool = False, delete: bool = True, prefix: str = "irony_", suffix: str = ".fits") -> str:
         """
 
         Parameters
@@ -109,9 +109,9 @@ class Fixer:
         logger.info(f"to_new_directory started. Parameters: {output=}, {fits_array=}")
 
         if output is None or not Path(output).is_dir():
-            output = tempfile.mkdtemp(prefix="piron_")
+            output = tempfile.mkdtemp(prefix="irony_")
 
-        with tempfile.NamedTemporaryFile(delete=True, prefix="piron_", suffix=".fls", mode="w") as new_files_file:
+        with tempfile.NamedTemporaryFile(delete=True, prefix="irony_", suffix=".fls", mode="w") as new_files_file:
             to_write = []
             for each_file in fits_array:
                 f = each_file.path
@@ -136,7 +136,7 @@ class Fixer:
         """
         logger.info(f"at_file_from_list started. Parameters: {data=}")
 
-        with tempfile.NamedTemporaryFile(delete=True, prefix="piron_", suffix=".fls", mode="w") as new_files_file:
+        with tempfile.NamedTemporaryFile(delete=True, prefix="irony_", suffix=".fls", mode="w") as new_files_file:
             new_files_file.write("\n".join(map(str, data)))
             new_files_file.flush()
 
@@ -159,6 +159,7 @@ class Fixer:
         return "yes" if value else "no"
 
     @classmethod
+    @contextlib.contextmanager
     def iraf_coords(cls, points: pd.DataFrame) -> str:
         """
 
@@ -171,10 +172,11 @@ class Fixer:
         str
         """
         logger.info(f"iraf_coords started. Parameters: {points=}")
-
-        file_name = tempfile.NamedTemporaryFile(delete=False, prefix="piron_", suffix=".coo").name
-        points[["xcentroid", "ycentroid"]].to_csv(file_name, sep=" ", header=False, index=False)
-        return file_name
+        with tempfile.NamedTemporaryFile(delete=True, prefix="irony_", suffix=".coo", mode="w") as new_files_file:
+            # file_name = tempfile.NamedTemporaryFile(delete=False, prefix="irony_", suffix=".coo").name
+            points[["xcentroid", "ycentroid"]].to_csv(new_files_file.name, sep=" ", header=False, index=False)
+            new_files_file.flush()
+            yield new_files_file.name
 
     @classmethod
     def list_to_source(cls, sources: List[List[float]]) -> pd.DataFrame:

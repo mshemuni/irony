@@ -207,9 +207,7 @@ class APhot:
         iraf.digiphot.apphot.photpars.mkapert = "no"
         with self.fits_array.at_file() as at_file:
             with Fixer.to_new_directory(None, self.fits_array) as output_files:
-                with Fixer.at_file_from_list(
-                        " ".join(map(str, each)) for each in points[["xcentroid", "ycentroid"]].to_numpy()) as coo_file:
-
+                with Fixer.iraf_coords(points[["xcentroid", "ycentroid"]]) as coo_file:
                     iraf.digiphot.apphot.phot(f"'@{at_file}'", coords=f"{coo_file}", output=f"'@{output_files}'",
                                               interac="no", verify="no")
                     res = iraf.txdump(f"'@{output_files}'", "id,mag,merr,flux,stdev", "yes", Stdout=PIPE)

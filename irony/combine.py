@@ -65,7 +65,7 @@ class Combine:
             logger.error("Not enough image found")
             raise ImageCountError("Not enough image found")
 
-        output = Fixer.output(output, override=override, delete=True, prefix="piron_", suffix=".fits")
+        output = Fixer.output(output, override=override, delete=True, prefix="irony_", suffix=".fits")
 
         iraf.noao.imred.ccdred.combine.unlearn()
         with self.fits_array.at_file() as at_file:
@@ -103,7 +103,7 @@ class Combine:
             logger.error("Not enough image found")
             raise ImageCountError("Not enough image found")
 
-        output = Fixer.output(output, override=override, delete=True, prefix="piron_", suffix=".fits")
+        output = Fixer.output(output, override=override, delete=True, prefix="irony_", suffix=".fits")
 
         iraf.noao.imred.ccdred.zerocombine.unlearn()
         with self.fits_array.at_file() as at_file:
@@ -149,7 +149,7 @@ class Combine:
             logger.error("Not enough image found")
             raise ImageCountError("Not enough image found")
 
-        output = Fixer.output(output, override=override, delete=True, prefix="piron_", suffix=".fits")
+        output = Fixer.output(output, override=override, delete=True, prefix="irony_", suffix=".fits")
 
         iraf.noao.imred.ccdred.darkcombine.unlearn()
         with self.fits_array.at_file() as at_file:
@@ -193,7 +193,7 @@ class Combine:
             logger.error("Not enough image found")
             raise ImageCountError("Not enough image found")
 
-        output = Fixer.output(output, override=override, delete=True, prefix="piron_", suffix=".fits")
+        output = Fixer.output(output, override=override, delete=True, prefix="irony_", suffix=".fits")
 
         iraf.noao.imred.ccdred.flatcombine.unlearn()
         with self.fits_array.at_file() as at_file:
@@ -223,7 +223,7 @@ class Combine:
             logger.error("Not enough image found")
             raise ImageCountError("Not enough image found")
 
-        output = Fixer.output(output, override=override, delete=True, prefix="piron_", suffix=".fits")
+        output = Fixer.output(output, override=override, delete=True, prefix="irony_", suffix=".fits")
 
         iraf.imutil.imsum.unlearn()
         with self.fits_array.at_file() as at_file:

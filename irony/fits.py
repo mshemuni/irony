@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import subprocess
 import tempfile
 from glob import glob
 from pathlib import Path
@@ -333,7 +334,7 @@ class Fits:
 
         Check.operand(operand)
 
-        output = Fixer.output(output, override=override, delete=True, suffix=".fits", prefix="piron_")
+        output = Fixer.output(output, override=override, delete=True, suffix=".fits", prefix="irony_")
 
         if isinstance(other, Fits):
             other = abs(other)
@@ -475,8 +476,7 @@ class Fits:
             zscale = ZScaleInterval()
         else:
 
-            def zscale(x):
-                return x
+            def zscale(x): return x
 
         plt.imshow(zscale(self.data), cmap="Greys_r")
         if points is not None:
@@ -485,8 +485,16 @@ class Fits:
         plt.yticks([])
         plt.show()
 
-    def solve(self):
-        pass
+    def solve_field(self, output: str = None, override: bool = False) -> None:
+        # todo improve
+        output = Fixer.output(output, override=override, delete=False)
+        cmd = ["solve-field", str(self), "-o", output, "-p"]
+
+        if override:
+            cmd.append(override)
+
+        process = subprocess.Popen(cmd)
+        process.wait()
 
     def astrometry(self, api_key, solve_timeout=120):
         """
@@ -665,7 +673,7 @@ class FitsArray:
         """
         logger.info(f"Creating at_file. Parameters: None")
 
-        with tempfile.NamedTemporaryFile(mode="w", delete=True, suffix=".fls", prefix="piron_") as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", delete=True, suffix=".fls", prefix="irony_") as tmp:
             to_write = []
             for each in self.fits_list:
                 to_write.append(abs(each))

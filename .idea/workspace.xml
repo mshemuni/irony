@@ -5,40 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5d180345-96cb-4bea-9e41-ad235075e880" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/installation.rst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/irony.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/usage.rst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/iront_icon.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/piron.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/piron.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/piron.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/command_lines/ccdproc.py" beforeDir="false" afterPath="$PROJECT_DIR$/command_lines/ccdproc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/command_lines/darkcombine.py" beforeDir="false" afterPath="$PROJECT_DIR$/command_lines/darkcombine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/command_lines/flatcombine.py" beforeDir="false" afterPath="$PROJECT_DIR$/command_lines/flatcombine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/command_lines/zerocombine.py" beforeDir="false" afterPath="$PROJECT_DIR$/command_lines/zerocombine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/base_logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/base_logger.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/calculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/calculator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/calibration.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/calibration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/combine.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/combine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/errors.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/fits.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/fits.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/photometry.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/photometry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/piron/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/conf.py" beforeDir="false" afterPath="$PROJECT_DIR$/docs/conf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/index.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/index.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/usage.rst" beforeDir="false" afterPath="$PROJECT_DIR$/docs/usage.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/irony/combine.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/combine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/irony/fits.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/fits.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/irony/photometry.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/photometry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/irony/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/irony/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_calculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_calculator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_calibration.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_calibration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_combine.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_combine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_coorinates.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_coorinates.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_fits.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_fits.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_fitsarray.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_fitsarray.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_photometry.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_photometry.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,21 +43,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/mshem/OneDrive/Belgeler/irony/docs",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mshem/OneDrive/Belgeler/irony/docs&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\mshem\OneDrive\Belgeler\irony\docs" />
@@ -87,7 +67,7 @@
       <recent name="C:\Users\mshem\OneDrive\Belgeler\irony\docs" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.main">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="piron" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -110,9 +90,25 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Python tests in test_fitsarray.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="piron" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_fitsarray.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python tests.Python tests in test_fitsarray.py" />
       </list>
     </recent_temporary>
   </component>
@@ -125,7 +121,8 @@
       <option name="presentableId" value="Default" />
       <updated>1670677063817</updated>
       <workItem from="1670677065484" duration="1662000" />
-      <workItem from="1670684042201" duration="18003000" />
+      <workItem from="1670684042201" duration="23546000" />
+      <workItem from="1670757108250" duration="9826000" />
     </task>
     <servers />
   </component>
@@ -133,6 +130,7 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/irony$main.coverage" NAME="main Coverage Results" MODIFIED="1670697259286" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/irony$.coverage" NAME=" Coverage Results" MODIFIED="1670752209440" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/irony$main.coverage" NAME="main Coverage Results" MODIFIED="1670752896974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

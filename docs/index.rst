@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to irony's documentation!
+Welcome to `irony`'s documentation!
 =================================
-Version: 0.1.0
+*Version: 0.1.0*
 
 `irony`, stands for Iraf Python Photometry, is a python package for IRAF Photometry.
 Using `irony` one can automate calibration and photometry of astronomical observations.

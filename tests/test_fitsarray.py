@@ -10,9 +10,11 @@ from irony.errors import ImageCountError
 
 class TestFitsArray(unittest.TestCase):
 
+    FILES = "test/test*.fit"
+
     def test_abs(self):
-        fa = FitsArray.from_pattern("test/test*.fit")
-        files = [str(Path(each).absolute()) for each in glob("test/test*.fit")]
+        fa = FitsArray.from_pattern(self.FILES)
+        files = [str(Path(each).absolute()) for each in glob(self.FILES)]
 
         self.assertListEqual(abs(fa), files)
 
@@ -20,26 +22,26 @@ class TestFitsArray(unittest.TestCase):
             _ = FitsArray.from_pattern("not_available/test*.fit")
 
     def test_at_file(self):
-        fa = FitsArray.from_pattern("test/test*.fit")
+        fa = FitsArray.from_pattern(self.FILES)
 
         with fa.at_file() as at_file:
             with open(at_file, "r") as f2r:
                 self.assertListEqual(f2r.read().split(), abs(fa))
 
     def test_imstat(self):
-        fa = FitsArray.from_pattern("test/test*.fit")
+        fa = FitsArray.from_pattern(self.FILES)
         stats = fa.imstat
         for i in range(len(fa)):
             self.assertDictEqual(stats.iloc[i].to_dict(), fa[i].imstat)
 
     def test_header(self):
-        fa = FitsArray.from_pattern("test/test*.fit")
+        fa = FitsArray.from_pattern(self.FILES)
         header = fa.header
         for i in range(len(fa)):
             self.assertDictEqual(header.iloc[i].to_dict(), fa[i].header)
 
     def test_hedit(self):
-        fa = FitsArray.from_pattern("test/test*.fit")
+        fa = FitsArray.from_pattern(self.FILES)
 
         header = fa.header
         for i in range(len(fa)):
@@ -66,7 +68,7 @@ class TestFitsArray(unittest.TestCase):
             self.assertDictEqual(header.iloc[i].to_dict(), fa[i].header)
 
     def test_hselect(self):
-        fa = FitsArray.from_pattern("test/test*.fit")
+        fa = FitsArray.from_pattern(self.FILES)
 
         hselect = fa.hselect("DATE-OBS")
         self.assertListEqual(
@@ -75,7 +77,7 @@ class TestFitsArray(unittest.TestCase):
             )
 
     def test_imarith(self):
-        fa = FitsArray.from_pattern("test/test*.fit")
+        fa = FitsArray.from_pattern(self.FILES)
 
         new_fa = fa.imarith(10, "*")
 

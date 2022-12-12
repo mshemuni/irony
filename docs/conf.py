@@ -31,8 +31,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'alabaster'
 
+
 html_theme_options = {
-    'logo': 'irony.svg',
     'github_user': 'mshemuni',
     'github_repo': 'irony',
     'fixed_sidebar': 'true',
@@ -43,4 +43,5 @@ html_theme_options = {
 }
 
 html_static_path = ['_static']
-# html_logo = "irony.svg"
+html_favicon = 'iront_icon.svg'
+html_logo = "irony.svg"
