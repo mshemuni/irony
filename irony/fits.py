@@ -221,7 +221,9 @@ class Fits:
         """
         logger.info(f"Starting Cosmic clean. Parameters: alot...")
 
+        print(output)
         output = Fixer.output(output, override=override)
+        print(output)
 
         newdata, _ = cosmicray_lacosmic(self.data, sigclip=sigclip, sigfrac=sigfrac, objlim=objlim, gain=gain,
                                         readnoise=readnoise, satlevel=satlevel, pssl=pssl, niter=niter, sepmed=sepmed,
@@ -981,11 +983,11 @@ class FitsArray:
         with Fixer.to_new_directory(output, self) as new_files:
             with open(new_files, "r") as f2r:
                 cleaned_files = []
-                new_files = f2r.readlines()
+                new_files = f2r.read().split()
                 for fits, new_file in zip(self, new_files):
                     try:
 
-                        new_fits, _ = fits.cosmic_cleaner(output=new_fits, sigclip=sigclip, sigfrac=sigfrac,
+                        new_fits = fits.cosmic_cleaner(output=new_file, sigclip=sigclip, sigfrac=sigfrac,
                                                           objlim=objlim, gain=gain, readnoise=readnoise,
                                                           satlevel=satlevel, pssl=pssl, niter=niter, sepmed=sepmed,
                                                           cleantype=cleantype, fsmode=fsmode, psfmodel=psfmodel,
