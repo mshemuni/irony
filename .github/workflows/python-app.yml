@@ -26,6 +26,8 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt install iraf
+        setenv IRAFARCH linux
+        export iraf=/usr/lib/iraf/
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
