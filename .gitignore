@@ -129,6 +129,6 @@ dmypy.json
 .idea/
 .pyre/
 data/
-test/
 logfile
 astrometry_cache/
+deneme.py

@@ -1,6 +1,5 @@
 astroalign==2.4.1
 astropy==5.0.2
-ccdproc==2.3.1
 matplotlib==3.5.3
 mpl_point_clicker==0.3.1
 numpy==1.21.5

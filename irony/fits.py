@@ -91,6 +91,11 @@ class Fits:
         logger.info(f"Creating Fits from path. Parameters: {path=}")
         return Fits(Path(path))
 
+    @property
+    def file(self):
+        return f"{{OBSCURED PATH}}/{str(self.path.stem)}{str(self.path.suffix)}"
+
+    @property
     def imstat(self) -> dict:
         """
         Returns the npix, mean, stddev, min, max of the array as a dict. The default return of IRAF's imstatistics task.
@@ -567,7 +572,7 @@ class Fits:
 
         fig, ax = plt.subplots(constrained_layout=True)
         ax.imshow(zscale(self.data), cmap="Greys_r")
-        klkr = clicker(ax, ["source"], markers=["x"])
+        klkr = clicker(ax, ["source"], markers=["o"])
         plt.show()
         if len(klkr.get_positions()["source"]) == 0:
             return pd.DataFrame([], columns=["xcentroid", "ycentroid"])
@@ -590,6 +595,15 @@ class FitsArray:
         """
         logger.info(f"Creating an instance from {self.__class__.__name__}")
 
+        if not isinstance(fits_list, list):
+            raise ValueError("fits_list must be a list of Fits")
+
+        fits_list = [
+            each
+            for each in fits_list
+            if isinstance(each, Fits)
+        ]
+
         if len(fits_list) < 1:
             raise ImageCountError("No image was provided")
 
@@ -609,6 +623,9 @@ class FitsArray:
             return FitsArray(element)
 
         raise ValueError("Wrong slice")
+
+    def __delitem__(self, key):
+        del self.fits_list[key]
 
     def __len__(self) -> int:
         return len(self.fits_list)
@@ -680,6 +697,10 @@ class FitsArray:
             tmp.write("\n".join(to_write))
             tmp.flush()
             yield tmp.name
+
+    @property
+    def files(self):
+        return [fits.file for fits in self.fits_list]
 
     @property
     def imstat(self) -> pd.DataFrame:

@@ -49,7 +49,11 @@ class APhot:
         else:
             mag = self.ZMag + -2.5 * math.log10(flux) + 2.5 * math.log10(exptime)
 
-        merr = math.sqrt(flux / flux_error)
+        if flux_error <= 0:
+            merr = 0
+        else:
+            merr = math.sqrt(flux / flux_error)
+
         if math.isinf(merr):
             merr = 0
 

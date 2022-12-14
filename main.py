@@ -5,12 +5,12 @@ from irony import FitsArray, Combine, Calibration, \
 fa = FitsArray.from_pattern("path*")
 
 # Group images by `IMAGETYP`. Zero, Dark, Flat and Images
-groupped = fa.groupby("IMAGETYP")
+grouped = fa.groupby("IMAGETYP")
 
-zeros = groupped["Bias Frame"]
-darks = groupped["Dark Frame"]
-flats = groupped["Flat Field"]
-images = groupped["Light Frame"]
+zeros = grouped["Bias Frame"]
+darks = grouped["Dark Frame"]
+flats = grouped["Flat Field"]
+images = grouped["Light Frame"]
 
 # Create a combiner to do zerocombine
 z_combine = Combine(zeros)
