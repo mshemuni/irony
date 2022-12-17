@@ -6,7 +6,7 @@ import tempfile
 from glob import glob
 from pathlib import Path
 from subprocess import PIPE
-from typing import Dict, List, Union, Generator, Hashable
+from typing import Dict, List, Union, Hashable
 
 import astroalign
 import matplotlib.animation as animation
@@ -38,7 +38,8 @@ class Fits:
         path: pathlib.Path
             Path object of the fits file.
         """
-        logger.info(f"Creating an instance from {self.__class__.__name__}")
+        self.NAME = self.__class__.__name__
+        logger.info(f"Creating an instance from {self.NAME}")
         if not path.exists():
             raise FileNotFoundError("File does not exist")
 
@@ -265,6 +266,8 @@ class Fits:
                 for key in keys:
                     if key in hdu[0].header:
                         del hdu[0].header[key]
+                    else:
+                        logger.warning(f"{key} was not found in header. Skipping...")
         else:
 
             if not isinstance(values, type(keys)):
@@ -374,18 +377,12 @@ class Fits:
         if len(sources) < 0:
             raise NumberOfElementError("No source was found")
 
-        sources = np.array([list(src) for src in sources])
-        nans = np.empty(len(sources))
-        nans[:] = np.nan
         return pd.DataFrame(
-            {"npix": sources[:, 1], "tnpix": sources[:, 2], "xmin": sources[:, 3], "xmax": sources[:, 4],
-             "ymin": sources[:, 5], "ymax": sources[:, 6], "xcentroid": sources[:, 7], "ycentroid": sources[:, 8],
-             "x2": sources[:, 9], "y2": sources[:, 10], "xy": sources[:, 11], "errx2": sources[:, 12],
-             "erry2": sources[:, 13], "errxy": sources[:, 14], "a": sources[:, 15], "b": sources[:, 16],
-             "theta": sources[:, 17], "cxx": sources[:, 18], "cyy": sources[:, 19], "cxy": sources[:, 20],
-             "cflux": sources[:, 21], "flux": sources[:, 22], "cpeak": sources[:, 23], "peak": sources[:, 24],
-             "xcpeak": sources[:, 25], "ycpeak": sources[:, 26], "xpeak": sources[:, 27], "ypeak": sources[:, 28],
-             "flag": sources[:, 29], })
+            sources,
+            columns=["npix", "tnpix", "xmin", "xmax", "ymin", "ymax", "xcentroid", "ycentroid", "x2", "y2", "xy",
+                     "errx2", "erry2", "errxy", "a", "b", "theta", "cxx", "cyy", "cxy", "cflux", "flux", "cpeak",
+                     "peak", "xcpeak", "ycpeak", "xpeak", "ypeak", "flag"]
+        )
 
     def daofind(self, sigma: float = 3, fwhm: float = 3, threshold: float = 5) -> pd.DataFrame:
         """
@@ -451,6 +448,10 @@ class Fits:
         logger.info(
             f"align started. Parameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}, {min_area=}, {override=}")
 
+        if not isinstance(other, Fits):
+            logger.error("Other must be a Fits")
+            raise ValueError("Other must be a Fits")
+
         output = Fixer.output(output, override=override)
         try:
             registered_image, footprint = astroalign.register(self.data, other.data,
@@ -459,6 +460,7 @@ class Fits:
             fts.writeto(output, registered_image, header=fts.getheader(abs(self)))
             return Fits.from_path(output)
         except ValueError:
+            logger.error("Cannot align two images")
             raise AlignError("Cannot align two images")
 
     def show(self, points: pd.DataFrame = None, scale: bool = True) -> None:
@@ -777,6 +779,8 @@ class FitsArray:
                     for key in keys:
                         if key in hdu[0].header:
                             del hdu[0].header[key]
+                        else:
+                            logger.warning(f"{key} was not found in header. Skipping for {abs(fits)}")
         else:
             if not isinstance(keys, type(values)):
                 logger.error(f"keys and values must both be strings or list of strings")
@@ -823,6 +827,8 @@ class FitsArray:
         for field in fields:
             if field in headers.columns:
                 fields_to_use.append(field)
+            else:
+                logger.warning(f"{field} was not found in header. Skipping...")
 
         if len(fields_to_use) < 1:
             return pd.DataFrame()
@@ -903,6 +909,10 @@ class FitsArray:
         """
         logger.info(
             f"align started. Parameters: {other=}, {output=}, {max_control_points=}, {detection_sigma=}, {min_area=}")
+
+        if not isinstance(other, Fits):
+            logger.error("Other must be a Fits")
+            raise ValueError("Other must be a Fits")
 
         with Fixer.to_new_directory(output, self) as new_files:
             with open(new_files, "r") as f2r:
@@ -987,12 +997,12 @@ class FitsArray:
                 for fits, new_file in zip(self, new_files):
                     try:
 
-                        new_fits = fits.cosmic_cleaner(output=new_file, sigclip=sigclip, sigfrac=sigfrac,
-                                                          objlim=objlim, gain=gain, readnoise=readnoise,
-                                                          satlevel=satlevel, pssl=pssl, niter=niter, sepmed=sepmed,
-                                                          cleantype=cleantype, fsmode=fsmode, psfmodel=psfmodel,
-                                                          psffwhm=psffwhm, psfsize=psfsize, psfk=psfk, psfbeta=psfbeta,
-                                                          gain_apply=gain_apply)
+                        new_fits = fits.cosmic_cleaner(output=new_file, override=override, sigclip=sigclip,
+                                                       sigfrac=sigfrac, objlim=objlim, gain=gain, readnoise=readnoise,
+                                                       satlevel=satlevel, pssl=pssl, niter=niter, sepmed=sepmed,
+                                                       cleantype=cleantype, fsmode=fsmode, psfmodel=psfmodel,
+                                                       psffwhm=psffwhm, psfsize=psfsize, psfk=psfk, psfbeta=psfbeta,
+                                                       gain_apply=gain_apply)
                         cleaned_files.append(abs(new_fits))
                     except astroalign.MaxIterError:
                         pass
