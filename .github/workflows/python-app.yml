@@ -30,7 +30,6 @@ jobs:
         export iraf=/usr/lib/iraf/
         echo "PYRAF_NO_IRAF=yes" >> $GITHUB_ENV
         sudo apt-get install --no-install-recommends build-essential libx11-dev
-#        export PYRAF_NO_DISPLAY=1
         
         python -m pip install --upgrade pip
         pip install flake8 pytest
