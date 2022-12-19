@@ -1,4 +1,4 @@
-# piron
+# irony
 
 ![piron](assets/irony.svg)
 
