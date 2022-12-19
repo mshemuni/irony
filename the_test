@@ -1,0 +1,15 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.6, pytest-6.2.5, py-1.10.0, pluggy-0.13.0
+rootdir: /mnt/c/Users/mshem/OneDrive/Belgeler/irony
+plugins: openfiles-0.5.0, filter-subpackage-0.1.1, astropy-header-0.2.0, doctestplus-0.11.2, arraydiff-0.5.0, cov-3.0.0, remotedata-0.3.3, hypothesis-6.36.0, mock-3.6.1
+collected 28 items
+
+test/test_calculator.py ..
+test/test_calibration.py .
+test/test_combine.py .
+test/test_coordinates.py ....
+test/test_fits.py ..........
+test/test_fits_array.py .......
+test/test_photometry.py ...
+
+============================= 28 passed in 20.32s ==============================
