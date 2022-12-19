@@ -1,8 +1,6 @@
-import pytest
-
 import numpy as np
 
-from irony import Combine, FitsArray
+from src.irony import Combine, FitsArray
 
 
 def test_combine():

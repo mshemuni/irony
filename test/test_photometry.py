@@ -1,7 +1,7 @@
 import pytest
 
 
-from irony import APhot, FitsArray, Fixer
+from src.irony import APhot, FitsArray, Fixer
 
 FILES = "test/files/test1.fits"
 SOURCES = Fixer.list_to_source([[1495.226807, 1398.818519]])

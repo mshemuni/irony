@@ -12,7 +12,7 @@ def zero(files: List[str], output: str, override: bool, ope: str, rej: str) -> N
     :param rej: Type of rejection operation.
     :return: None
     """
-    from irony import FitsArray, Combine
+    from src.irony import FitsArray, Combine
 
 
     if isinstance(files, str):

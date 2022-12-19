@@ -1,4 +1,4 @@
-from irony import FitsArray, Combine, Calibration, \
+from src.irony import FitsArray, Combine, Calibration, \
     Calculator, Coordinates, APhot
 
 # Get all images available in directory

@@ -5,8 +5,8 @@ from pathlib import Path
 
 import numpy as np
 
-from irony import FitsArray
-from irony.errors import ImageCountError
+from src.irony import FitsArray
+from src.irony import ImageCountError
 
 FILES = "test/files/test*.fits"
 

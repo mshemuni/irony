@@ -1,6 +1,6 @@
 import pytest
 
-from irony import Calculator, Coordinates, FitsArray
+from src.irony import Calculator, Coordinates, FitsArray
 
 FILES = "test/files/test*.fits"
 

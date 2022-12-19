@@ -1,9 +1,6 @@
-import pytest
-
-
 import numpy as np
 
-from irony import Calibration, Fits, FitsArray
+from src.irony import Calibration, Fits, FitsArray
 
 
 def test_calibration():

@@ -14,8 +14,8 @@ def dark(files: List[str], output: str, override: bool, ope: str, rej: str, disc
     :param scale: Multiplicative image scaling to be  applied.
     :return: None
     """
-    from irony import FitsArray, Combine
-    from irony.errors import ImageCountError
+    from src.irony import FitsArray, Combine
+    from src.irony import ImageCountError
     from pathlib import Path
 
     if isinstance(files, str):

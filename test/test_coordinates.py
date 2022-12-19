@@ -1,6 +1,6 @@
 import pytest
 
-from irony import Coordinates
+from src.irony import Coordinates
 
 DELTA = 10**-6
 

@@ -8,7 +8,7 @@ from pandas.testing import assert_frame_equal
 from photutils.detection import DAOStarFinder
 from sep import Background
 
-from irony import Fits
+from src.irony import Fits
 
 FILE = "test/files/test1.fits"
 
